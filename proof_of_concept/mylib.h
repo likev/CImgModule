@@ -3,5 +3,6 @@
 
 #include "mylib_math.h"
 #include "mylib_print.h"
+#include "mylib_class.h"
 
 #endif // MYLIB_H
