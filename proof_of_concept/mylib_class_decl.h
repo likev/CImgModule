@@ -1,5 +1,5 @@
-#ifndef MYLIB_CLASS_H
-#define MYLIB_CLASS_H
+#ifndef MYLIB_CLASS_DECL_H
+#define MYLIB_CLASS_DECL_H
 
 namespace mylib {
 
@@ -8,13 +8,8 @@ class Calculator {
 public:
     Calculator(T initial_value) : current_value(initial_value) {}
 
-    void add(const T& value) {
-        current_value += value;
-    }
-
-    void multiply(const T& value) {
-        current_value *= value;
-    }
+    void add(const T& value);
+    void multiply(const T& value);
 
     T get_value() const {
         return current_value;
@@ -26,4 +21,7 @@ private:
 
 } // namespace mylib
 
-#endif // MYLIB_CLASS_H
+#include "mylib_class_add.h"
+#include "mylib_class_multiply.h"
+
+#endif // MYLIB_CLASS_DECL_H
