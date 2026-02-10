@@ -113,6 +113,7 @@ Deliverable: documentation section in `README.md`.
 - _YYYY-MM-DD_: Added small-step extraction + per-step compile gate (`/examples/tutorial.cpp`, first-error-only mode).
 - _2026-02-10_: Phase 1 extraction step 2: moved OS detection and MSVC warning/CRT macro setup into `module/core/platform.h` and included it from `CImg.h` with no functional changes.
 - _2026-02-10_: Added inventory-anchor guidance to prefer symbol-based anchors (with periodic line-range refresh) in `module/MAP.md`/PLAN-1 to keep mapping resilient as `CImg.h` shifts.
+- _2026-02-10_: Phase 1 extraction step 3: moved portable datatype/64-bit format and `cimg_max_buf_size` macro definitions into `module/core/types.h` and included it from `CImg.h` with no functional changes.
 
 ## Risk register and mitigations
 - **Risk:** Macro ordering regressions.
