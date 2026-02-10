@@ -12,8 +12,8 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 - Core helper namespace anchor (`namespace cimg {`) appears in two main blocks: ~2326-2514 and ~2692-8302.
 - Display abstraction anchor (`class CImgDisplay`) spans ~8472-12621.
 - Image class anchor (`template<typename T> class CImg`) spans ~12727-63519.
-- Container class anchor (`template<typename T> class CImgList`) spans ~63534-68691.
-- Final helper tail anchor (`namespace cimg {` block after `CImgList`) closes near 68695-70137.
+- Container class anchor (`template<typename T> struct CImgList`) extracted to `module/containers/list.h` (previously ~63534-68691).
+- Final helper tail anchor (`namespace cimg {` block after `CImgList`) now follows `#include "module/containers/list.h"` and closes near 68695-70137.
 
 ## Section-to-module mapping
 
