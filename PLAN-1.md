@@ -120,6 +120,16 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 7: moved `cimg_display` framework selection and validation macros into `module/core/config.h` with unchanged defaults.
 - _2026-02-10_: Phase 1 extraction step 8: moved display-framework conditional include block (X11/SDL headers) into `module/core/config.h` preserving macro guards.
 - _2026-02-10_: Phase 1 extraction step 9: moved default `cimg_appname` macro definition into `module/core/config.h` without changing semantics.
+- _2026-02-10_: Phase 1 extraction step 10: moved OpenCV support include/config block (`cimg_use_opencv`) into `module/io/io_common.h` and included it from `CImg.h` without functional changes.
+- _2026-02-10_: Phase 1 extraction step 11: moved LibPNG support include/config block (`cimg_use_png`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 12: moved LibJPEG support include/config block (`cimg_use_jpeg`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 13: moved JPEG XL support include/config block (`cimg_use_jxl`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 14: moved LibTIFF support include/config block (`cimg_use_tiff`) into `module/io/io_common.h` preserving the `uint64/int64` hack macros.
+- _2026-02-10_: Phase 1 extraction step 15: moved HEIF support include/config block (`cimg_use_heif`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 16: moved WebP support include/config block (`cimg_use_webp`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 17: moved LibMINC2 support include/config block (`cimg_use_minc2`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 18: moved Zlib support include/config block (`cimg_use_zlib`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 19: moved libcurl support include/config block (`cimg_use_curl`) into `module/io/io_common.h` with unchanged guards.
 
 ## Risk register and mitigations
 - **Risk:** Macro ordering regressions.
