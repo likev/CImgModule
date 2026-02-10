@@ -4,14 +4,16 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 
 ## Source inventory (high-level anchors)
 
-- Version macro starts near line 56.
-- Core build/environment configuration starts near line 71 and runs through feature toggles (OpenMP/display/libs).
-- Public library namespace opens at line 2315.
-- Core helper namespace (`cimg`) appears in two main blocks: ~2326-2514 and ~2692-8302.
-- Display abstraction (`CImgDisplay`) spans ~8472-12621.
-- Image class (`CImg<T>`) spans ~12727-63519.
-- Container class (`CImgList<T>`) spans ~63534-68691.
-- Final helper namespace tail closes near 68695-70137.
+> Note: line numbers below are indicative snapshots of the current `CImg.h` state, not stable identifiers. Re-validate/update them periodically as extraction progresses.
+
+- Version defaults anchor (`#ifndef cimg_version`) starts near line 56.
+- Core build/environment config anchor (comment `Test and possibly auto-set CImg configuration variables`) starts near line 71 and runs through feature toggles (OpenMP/display/libs).
+- Public API namespace anchor (`namespace cimg_library {`) opens near line 2315.
+- Core helper namespace anchor (`namespace cimg {`) appears in two main blocks: ~2326-2514 and ~2692-8302.
+- Display abstraction anchor (`class CImgDisplay`) spans ~8472-12621.
+- Image class anchor (`template<typename T> class CImg`) spans ~12727-63519.
+- Container class anchor (`template<typename T> class CImgList`) spans ~63534-68691.
+- Final helper tail anchor (`namespace cimg {` block after `CImgList`) closes near 68695-70137.
 
 ## Section-to-module mapping
 
