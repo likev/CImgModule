@@ -9,7 +9,7 @@ Refactor the monolithic `CImg.h` header into a set of focused, composable header
 - Preserve all existing public symbols, macros, include behavior, and binary/runtime semantics.
 - Avoid functional changes during extraction; this is primarily a structural refactor.
 - Ensure the split can be consumed either through `CImg.h` (default) or selective module includes (advanced users).
-- Before moving code blocks, create backups: `CImg.h -> CImg.h.bak` and `module/*/*.h -> module/*/*.h.bak`; if errors occur during extraction, restore the related files from backups.
+- Use version control for managing changes and recovery (e.g., `git commit`, `git stash`) instead of creating manual `.bak` files. This is a more robust and reliable approach.
 - Perform extraction in very small increments: move code blocks section-by-section, step-by-step; avoid large batch moves in a single step.
 - After each small move, compile a representative test file (e.g. `/examples/tutorial.cpp`) before continuing; use a compiler option that stops on the first error (such as `-fmax-errors=1`) to keep feedback fast.
 
