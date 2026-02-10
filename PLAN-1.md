@@ -12,6 +12,7 @@ Refactor the monolithic `CImg.h` header into a set of focused, composable header
 - Use version control for managing changes and recovery (e.g., `git commit`, `git stash`) instead of creating manual `.bak` files. This is a more robust and reliable approach.
 - Perform extraction in very small increments: move code blocks section-by-section, step-by-step; avoid large batch moves in a single step.
 - After each small move, compile a representative test file (e.g. `/examples/tutorial.cpp`) before continuing; use a compiler option that stops on the first error (such as `-fmax-errors=1`) to keep feedback fast.
+- Keep section anchors in `module/MAP.md` stable by preferring unique symbol-based identifiers (macro/function/class names) in addition to indicative line ranges; review these anchors periodically as `CImg.h` evolves.
 
 ## Proposed target layout
 Create a new directory:
@@ -110,6 +111,8 @@ Deliverable: documentation section in `README.md`.
 - _YYYY-MM-DD_: Added dedicated feature-branch requirement for this major refactor.
 - _YYYY-MM-DD_: Added explicit progress-tracking checklist and log section.
 - _YYYY-MM-DD_: Added small-step extraction + per-step compile gate (`/examples/tutorial.cpp`, first-error-only mode).
+- _2026-02-10_: Phase 1 extraction step 2: moved OS detection and MSVC warning/CRT macro setup into `module/core/platform.h` and included it from `CImg.h` with no functional changes.
+- _2026-02-10_: Added inventory-anchor guidance to prefer symbol-based anchors (with periodic line-range refresh) in `module/MAP.md`/PLAN-1 to keep mapping resilient as `CImg.h` shifts.
 
 ## Risk register and mitigations
 - **Risk:** Macro ordering regressions.
