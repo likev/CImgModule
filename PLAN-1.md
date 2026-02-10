@@ -150,6 +150,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 34: moved `CImg<T>::save*` methods into `module/io/image_save.h` and included it inside `CImg<T>`.
 - _2026-02-10_: Phase 1 extraction step 35: moved `namespace cimg` I/O helper functions (streams, file/path utilities, network loading) into `module/io/io_helpers.h` and included it after `module/containers/list.h`.
 - _2026-02-10_: Phase 1 extraction step 36: moved `CImg<T>` iterator/value/type alias block into `module/image/image_class_decl.h` and included it inside `CImg<T>`.
+- _2026-02-10_: Phase 1 extraction step 37: moved `CImg<T>` constructors/destructor/instance management block into `module/image/image_ops_basic.h` and included it inside `CImg<T>`.
 
 
 ## Risk register and mitigations

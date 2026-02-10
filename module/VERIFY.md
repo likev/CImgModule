@@ -23,6 +23,7 @@ Tracking compile/runtime parity checks during and after modular extraction.
 | Representative compile after compat extraction step 32 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving legacy aliases/macros into `module/compat/legacy_macros.h` preserves umbrella include compile behavior. |
 | Representative compile after io extraction steps 33-35 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving `CImg<T>` load/save methods and `namespace cimg` I/O helpers into `module/io/*` preserves umbrella include compile behavior. |
 | Representative compile after image extraction step 36 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving `CImg<T>` iterator/value/type alias block into `module/image/image_class_decl.h` preserves umbrella include compile behavior. |
+| Representative compile after image extraction step 37 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving constructors/destructor/instance management block into `module/image/image_ops_basic.h` preserves umbrella include compile behavior. |
 
 
 ## Feature flag matrix (to fill during Phases 1-3)
