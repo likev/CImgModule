@@ -142,6 +142,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 26: moved the main `namespace cimg` helper block (type traits, constants, low-level helpers) into `module/math/math_core.h` and removed it from `CImg.h`.
 - _2026-02-10_: Phase 1 extraction step 27: moved math operator overloads and pointwise external functions into `module/math/math_algorithms.h` and included it from `CImg.h`.
 - _2026-02-10_: Phase 1 extraction step 28: split VT100 color sequences into `module/math/math_colors.h` and reordered `CImg.h` to include `module/math/math_core.h`/`module/math/math_algorithms.h` after exception definitions.
+- _2026-02-10_: Phase 1 extraction step 29: moved `CImg<T>::_cimg_math_parser` (expression compiler/evaluator) into `module/math/math_parser.h` and included it inside the `CImg<T>` definition.
 
 
 ## Risk register and mitigations

@@ -26,6 +26,7 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 | Common macros/assertions/helpers | `module/core/utils.h` | Shared substrate for all downstream modules. |
 | VT100 color escape sequences (`cimg::t_*`) | `module/math/math_colors.h` | Keep available before exception formatting. |
 | `namespace cimg` helpers (math-ish/core utilities) | `module/math/math_core.h`, `module/math/math_algorithms.h` | Split low-level constants/utilities from algorithms. |
+| `CImg<T>::_cimg_math_parser` expression compiler | `module/math/math_parser.h` | Included inside the `CImg<T>` definition to preserve class scope. |
 | `CImgDisplay` + backend-specific branches | `module/display/*` | Keep backend macro guards exactly equivalent. |
 | `CImg<T>` declaration + implementation body | `module/image/*` | Perform in smallest possible extraction chunks. |
 | `CImgList<T>` + list helpers | `module/containers/list.h` | Depends on `CImg<T>` and core utilities. |
