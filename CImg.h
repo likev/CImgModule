@@ -83,63 +83,7 @@
 #define cimg_str(x) #x
 #define cimg_str2(x) cimg_str(x)
 
-// Detect/configure OS variables.
-//
-// Define 'cimg_OS' to: '0' for an unknown OS (will try to minize library dependencies).
-//                      '1' for a Unix-like OS (Linux, Solaris, BSD, MacOSX, Irix, ...).
-//                      '2' for Microsoft Windows.
-//                      (auto-detection is performed if 'cimg_OS' is not set by the user).
-#ifndef cimg_OS
-#if defined(unix)        || defined(__unix)      || defined(__unix__) \
- || defined(linux)       || defined(__linux)     || defined(__linux__) \
- || defined(sun)         || defined(__sun) \
- || defined(BSD)         || defined(__OpenBSD__) || defined(__NetBSD__) \
- || defined(__FreeBSD__) || defined (__DragonFly__) \
- || defined(sgi)         || defined(__sgi) \
- || defined(__OSX__)     || defined(__MACOSX__)  || defined(__APPLE__) \
- || defined(__CYGWIN__)
-#define cimg_OS 1
-#elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
-   || defined(WIN64)    || defined(_WIN64) || defined(__WIN64__)
-#define cimg_OS 2
-#else
-#define cimg_OS 0
-#endif
-#elif !(cimg_OS==0 || cimg_OS==1 || cimg_OS==2)
-#error CImg Library: Invalid configuration variable 'cimg_OS'.
-#error (correct values are '0 = unknown OS', '1 = Unix-like OS', '2 = Microsoft Windows').
-#endif
-// Disable silly warnings on some Microsoft VC++ compilers.
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable:4127)
-#pragma warning(disable:4244)
-#pragma warning(disable:4307)
-#pragma warning(disable:4311)
-#pragma warning(disable:4312)
-#pragma warning(disable:4319)
-#pragma warning(disable:4512)
-#pragma warning(disable:4571)
-#pragma warning(disable:4640)
-#pragma warning(disable:4702)
-#pragma warning(disable:4706)
-#pragma warning(disable:4710)
-#pragma warning(disable:4800)
-#pragma warning(disable:4804)
-#pragma warning(disable:4820)
-#pragma warning(disable:4995)
-#pragma warning(disable:4996)
-
-#ifndef _CRT_SECURE_NO_DEPRECATE
-#define _CRT_SECURE_NO_DEPRECATE 1
-#endif
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS 1
-#endif
-#ifndef _CRT_NONSTDC_NO_DEPRECATE
-#define _CRT_NONSTDC_NO_DEPRECATE 1
-#endif
-#endif
+#include "module/core/platform.h"
 
 // Define correct string functions for each compiler and OS.
 #if cimg_OS==2 && defined(_MSC_VER)
@@ -205,69 +149,7 @@ enum {FALSE_WIN = 0};
 #define cimg_pragma(x) _Pragma(#x)
 #endif
 
-// Define own datatypes to ensure portability.
-// ( 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' ).
-#define cimg_uint8 unsigned char
-#if defined(CHAR_MAX) && CHAR_MAX==255
-#define cimg_int8 signed char
-#else
-#define cimg_int8 char
-#endif
-#define cimg_uint16 unsigned short
-#define cimg_int16 short
-#define cimg_uint32 unsigned int
-#define cimg_int32 int
-#define cimg_float32 float
-#define cimg_float64 double
-
-#if cimg_OS==2
-
-#define cimg_uint64 unsigned __int64
-#define cimg_int64 __int64
-#define cimg_ulong UINT_PTR
-#define cimg_long INT_PTR
-#ifdef _MSC_VER
-#define cimg_fuint64 "%I64u"
-#define cimg_fint64 "%I64d"
-#else
-#define cimg_fuint64 "%llu"
-#define cimg_fint64 "%lld"
-#endif
-#define cimg_fhex64 "%llx"
-
-#else
-
-#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX))
-#define cimg_uint64 unsigned long long
-#define cimg_int64 long long
-#define cimg_fuint64 "%llu"
-#define cimg_fint64 "%lld"
-#define cimg_fhex64 "%llx"
-#else
-#define cimg_uint64 unsigned long
-#define cimg_int64 long
-#define cimg_fuint64 "%lu"
-#define cimg_fint64 "%ld"
-#define cimg_fhex64 "%lx"
-#endif
-
-#if defined(__arm__) || defined(_M_ARM)
-#define cimg_ulong unsigned long long
-#define cimg_long long long
-#else
-#define cimg_ulong unsigned long
-#define cimg_long long
-#endif
-
-#endif
-
-#ifndef cimg_max_buf_size
-#if UINTPTR_MAX==0xffffffff
-#define cimg_max_buf_size ((cimg_ulong)3*1024*1024*1024)
-#else
-#define cimg_max_buf_size ((cimg_ulong)16*1024*1024*1024)
-#endif
-#endif
+#include "module/core/types.h"
 
 // Configure filename separator.
 //

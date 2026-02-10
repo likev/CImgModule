@@ -8,6 +8,8 @@ Tracking compile/runtime parity checks during and after modular extraction.
 |---|---|---|---|
 | Representative compile (umbrella include path) | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms baseline build still works after first extraction move. |
 | Macro override compatibility (\`cimg_date\`) | `g++ -std=c++11 -fmax-errors=1 -I. /tmp/test_cimg_date.cpp -o /tmp/test_cimg_date` | ✅ Pass | Confirms macro override remains honored after extracting version/date/time defaults. |
+| Representative compile after platform extraction | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms `module/core/platform.h` extraction keeps umbrella include behavior unchanged. |
+| Representative compile after types extraction | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms `module/core/types.h` extraction preserves baseline umbrella include compile. |
 
 ## Feature flag matrix (to fill during Phases 1-3)
 
