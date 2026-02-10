@@ -13,7 +13,11 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 - Display abstraction anchor (`struct CImgDisplay`) extracted to `module/display/display_core.h` (previously ~8472-12621).
 - Image class anchor (`template<typename T> class CImg`) spans ~12727-63519.
 - Container class anchor (`template<typename T> struct CImgList`) extracted to `module/containers/list.h` (previously ~63534-68691).
+- Image I/O methods anchor (`CImg<T>::load*`/`save*`) extracted to `module/io/image_load.h` + `module/io/image_save.h`
+  (previously ~31064-38535).
 - Final helper tail anchor (`namespace cimg {` block after `CImgList`) now follows `#include "module/containers/list.h"` and closes near 68695-70137.
+- I/O helper block (`stdin/stdout/stderr`, `std_fopen`, path utilities, network load) extracted to `module/io/io_helpers.h`
+  (previously within the post-`CImgList` `namespace cimg` tail).
 
 ## Section-to-module mapping
 
@@ -30,7 +34,9 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 | `CImgDisplay` + backend-specific branches | `module/display/*` | Keep backend macro guards exactly equivalent. |
 | `CImg<T>` declaration + implementation body | `module/image/*` | Perform in smallest possible extraction chunks. |
 | `CImgList<T>` + list helpers | `module/containers/list.h` | Depends on `CImg<T>` and core utilities. |
+| `CImg<T>::load*`/`save*` methods | `module/io/image_load.h`, `module/io/image_save.h` | Included inside the `CImg<T>` class body. |
 | Format loaders/savers and stream helpers | `module/io/io_common.h`, `module/io/io_formats_*.h` | Maintain conditional-compile gates. |
+| File/path/network helper functions (`namespace cimg`) | `module/io/io_helpers.h` | Included after `module/containers/list.h` inside `namespace cimg`. |
 | Legacy aliases/shims (`cil`, `_cimg_redefine_*` macros, warning pop) | `module/compat/legacy_macros.h` | Keep opt-in compatibility semantics. |
 
 ## Required include-order constraints

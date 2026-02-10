@@ -146,6 +146,9 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 30: moved `CImgList<T>` into `module/containers/list.h` and included it from `CImg.h` immediately after `CImg<T>`.
 - _2026-02-10_: Phase 1 extraction step 31: moved `CImgDisplay` into `module/display/display_core.h` and included it from `CImg.h` within `namespace cimg_library`.
 - _2026-02-10_: Phase 1 extraction step 32: moved legacy aliases/macros (`cil`, `_cimg_redefine_*`, warning pop) into `module/compat/legacy_macros.h` and included it at the end of `CImg.h`.
+- _2026-02-10_: Phase 1 extraction step 33: moved `CImg<T>::load*` methods into `module/io/image_load.h` and included it inside `CImg<T>`.
+- _2026-02-10_: Phase 1 extraction step 34: moved `CImg<T>::save*` methods into `module/io/image_save.h` and included it inside `CImg<T>`.
+- _2026-02-10_: Phase 1 extraction step 35: moved `namespace cimg` I/O helper functions (streams, file/path utilities, network loading) into `module/io/io_helpers.h` and included it after `module/containers/list.h`.
 
 
 ## Risk register and mitigations
