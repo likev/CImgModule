@@ -145,6 +145,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 29: moved `CImg<T>::_cimg_math_parser` (expression compiler/evaluator) into `module/math/math_parser.h` and included it inside the `CImg<T>` definition.
 - _2026-02-10_: Phase 1 extraction step 30: moved `CImgList<T>` into `module/containers/list.h` and included it from `CImg.h` immediately after `CImg<T>`.
 - _2026-02-10_: Phase 1 extraction step 31: moved `CImgDisplay` into `module/display/display_core.h` and included it from `CImg.h` within `namespace cimg_library`.
+- _2026-02-10_: Phase 1 extraction step 32: moved legacy aliases/macros (`cil`, `_cimg_redefine_*`, warning pop) into `module/compat/legacy_macros.h` and included it at the end of `CImg.h`.
 
 
 ## Risk register and mitigations

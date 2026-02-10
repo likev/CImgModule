@@ -31,7 +31,7 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 | `CImg<T>` declaration + implementation body | `module/image/*` | Perform in smallest possible extraction chunks. |
 | `CImgList<T>` + list helpers | `module/containers/list.h` | Depends on `CImg<T>` and core utilities. |
 | Format loaders/savers and stream helpers | `module/io/io_common.h`, `module/io/io_formats_*.h` | Maintain conditional-compile gates. |
-| Legacy aliases/shims | `module/compat/legacy_macros.h` | Keep opt-in compatibility semantics. |
+| Legacy aliases/shims (`cil`, `_cimg_redefine_*` macros, warning pop) | `module/compat/legacy_macros.h` | Keep opt-in compatibility semantics. |
 
 ## Required include-order constraints
 
