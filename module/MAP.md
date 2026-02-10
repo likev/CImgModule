@@ -33,6 +33,7 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 | `CImg<T>::_cimg_math_parser` expression compiler | `module/math/math_parser.h` | Included inside the `CImg<T>` definition to preserve class scope. |
 | `CImgDisplay` + backend-specific branches | `module/display/*` | Keep backend macro guards exactly equivalent. |
 | `CImg<T>` declaration + implementation body | `module/image/*` | Perform in smallest possible extraction chunks. |
+| `CImg<T>` iterator/value/type alias block (`iterator`, `const_iterator`, `value_type`, `T*` aliases) | `module/image/image_class_decl.h` | Extracted first as a self-contained class-decl chunk. |
 | `CImgList<T>` + list helpers | `module/containers/list.h` | Depends on `CImg<T>` and core utilities. |
 | `CImg<T>::load*`/`save*` methods | `module/io/image_load.h`, `module/io/image_save.h` | Included inside the `CImg<T>` class body. |
 | Format loaders/savers and stream helpers | `module/io/io_common.h`, `module/io/io_formats_*.h` | Maintain conditional-compile gates. |
