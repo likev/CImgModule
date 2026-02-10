@@ -139,6 +139,9 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 24: moved `cimg_float16`/`cimg_is_float16` setup, macro-conflict handling (`min`/`max`/`PI`), and user-friendly `cimg_*` macro utility block into `module/core/utils.h` and included it from `CImg.h` without functional changes.
 - _2026-02-10_: `/module/core` phase-1 header extraction is now complete for top-level core blocks (`version.h`, `platform.h`, `types.h`, `config.h`, `utils.h`); deeper implementation refactors remain in `CImg.h` for later phased moves.
 - _2026-02-10_: Phase 1 extraction step 25: moved VT100 color escape sequences (`cimg::t_*`) into `module/math/math_core.h` and included it from `CImg.h` without functional changes.
+- _2026-02-10_: Phase 1 extraction step 26: moved the main `namespace cimg` helper block (type traits, constants, low-level helpers) into `module/math/math_core.h` and removed it from `CImg.h`.
+- _2026-02-10_: Phase 1 extraction step 27: moved math operator overloads and pointwise external functions into `module/math/math_algorithms.h` and included it from `CImg.h`.
+- _2026-02-10_: Phase 1 extraction step 28: split VT100 color sequences into `module/math/math_colors.h` and reordered `CImg.h` to include `module/math/math_core.h`/`module/math/math_algorithms.h` after exception definitions.
 
 
 ## Risk register and mitigations

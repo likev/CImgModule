@@ -7,6 +7,7 @@
 #include "core/types.h"
 #include "core/utils.h"
 
+#include "math/math_colors.h"
 #include "math/math_core.h"
 #include "math/math_algorithms.h"
 
