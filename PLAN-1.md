@@ -130,6 +130,11 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 17: moved LibMINC2 support include/config block (`cimg_use_minc2`) into `module/io/io_common.h` with unchanged guards.
 - _2026-02-10_: Phase 1 extraction step 18: moved Zlib support include/config block (`cimg_use_zlib`) into `module/io/io_common.h` with unchanged guards.
 - _2026-02-10_: Phase 1 extraction step 19: moved libcurl support include/config block (`cimg_use_curl`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 20: moved Magick++ support include/config block (`cimg_use_magick`) into `module/io/io_formats_image.h` and included it from `CImg.h` without functional changes.
+- _2026-02-10_: Phase 1 extraction step 21: moved FFTW3 support include/config block (`cimg_use_fftw3`) into `module/io/io_formats_image.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 22: moved OpenEXR support include/config block (`cimg_use_openexr`) into `module/io/io_formats_image.h` preserving compiler diagnostic push/pop behavior.
+- _2026-02-10_: Phase 1 extraction step 23: moved TinyEXR support include/config block (`cimg_use_tinyexr`) into `module/io/io_formats_image.h` preserving `TINYEXR_IMPLEMENTATION` define behavior.
+- _2026-02-10_: `/module/io` phase-1 header extraction is now complete for top-level dependency/config include blocks (`io_common.h` + `io_formats_image.h`); remaining format implementation code stays in `CImg.h` for later phased moves.
 
 ## Risk register and mitigations
 - **Risk:** Macro ordering regressions.

@@ -13,6 +13,7 @@ Tracking compile/runtime parity checks during and after modular extraction.
 | Representative compile after config extraction | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms `module/core/config.h` extraction keeps umbrella include compile behavior unchanged. |
 | Representative compile after config extraction steps 5-9 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving OpenMP/abort/display/appname config blocks into `module/core/config.h` preserves umbrella include compile behavior. |
 | Representative compile after io extraction steps 10-19 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving OpenCV/PNG/JPEG/JXL/TIFF/HEIF/WebP/MINC2/Zlib/libcurl config-include blocks into `module/io/io_common.h` preserves umbrella include compile behavior. |
+| Representative compile after io extraction steps 20-23 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving Magick++/FFTW3/OpenEXR/TinyEXR config-include blocks into `module/io/io_formats_image.h` preserves umbrella include compile behavior. |
 
 ## Feature flag matrix (to fill during Phases 1-3)
 
