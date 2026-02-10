@@ -115,6 +115,31 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Added inventory-anchor guidance to prefer symbol-based anchors (with periodic line-range refresh) in `module/MAP.md`/PLAN-1 to keep mapping resilient as `CImg.h` shifts.
 - _2026-02-10_: Phase 1 extraction step 3: moved portable datatype/64-bit format and `cimg_max_buf_size` macro definitions into `module/core/types.h` and included it from `CImg.h` with no functional changes.
 
+- _2026-02-10_: Phase 1 extraction step 4: moved `cimg_file_separator` and `cimg_verbosity` configuration macros into `module/core/config.h` and included it from `CImg.h` with no functional changes.
+- _2026-02-10_: Phase 1 extraction step 5: moved OpenMP configuration macros (`cimg_use_openmp`, `cimg_pragma_openmp`) into `module/core/config.h` and preserved include order via existing config include.
+- _2026-02-10_: Phase 1 extraction step 6: moved abort-handler/OpenMP abort helper macro definitions into `module/core/config.h` with no functional changes.
+- _2026-02-10_: Phase 1 extraction step 7: moved `cimg_display` framework selection and validation macros into `module/core/config.h` with unchanged defaults.
+- _2026-02-10_: Phase 1 extraction step 8: moved display-framework conditional include block (X11/SDL headers) into `module/core/config.h` preserving macro guards.
+- _2026-02-10_: Phase 1 extraction step 9: moved default `cimg_appname` macro definition into `module/core/config.h` without changing semantics.
+- _2026-02-10_: Phase 1 extraction step 10: moved OpenCV support include/config block (`cimg_use_opencv`) into `module/io/io_common.h` and included it from `CImg.h` without functional changes.
+- _2026-02-10_: Phase 1 extraction step 11: moved LibPNG support include/config block (`cimg_use_png`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 12: moved LibJPEG support include/config block (`cimg_use_jpeg`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 13: moved JPEG XL support include/config block (`cimg_use_jxl`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 14: moved LibTIFF support include/config block (`cimg_use_tiff`) into `module/io/io_common.h` preserving the `uint64/int64` hack macros.
+- _2026-02-10_: Phase 1 extraction step 15: moved HEIF support include/config block (`cimg_use_heif`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 16: moved WebP support include/config block (`cimg_use_webp`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 17: moved LibMINC2 support include/config block (`cimg_use_minc2`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 18: moved Zlib support include/config block (`cimg_use_zlib`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 19: moved libcurl support include/config block (`cimg_use_curl`) into `module/io/io_common.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 20: moved Magick++ support include/config block (`cimg_use_magick`) into `module/io/io_formats_image.h` and included it from `CImg.h` without functional changes.
+- _2026-02-10_: Phase 1 extraction step 21: moved FFTW3 support include/config block (`cimg_use_fftw3`) into `module/io/io_formats_image.h` with unchanged guards.
+- _2026-02-10_: Phase 1 extraction step 22: moved OpenEXR support include/config block (`cimg_use_openexr`) into `module/io/io_formats_image.h` preserving compiler diagnostic push/pop behavior.
+- _2026-02-10_: Phase 1 extraction step 23: moved TinyEXR support include/config block (`cimg_use_tinyexr`) into `module/io/io_formats_image.h` preserving `TINYEXR_IMPLEMENTATION` define behavior.
+- _2026-02-10_: `/module/io` phase-1 header extraction is now complete for top-level dependency/config include blocks (`io_common.h` + `io_formats_image.h`); remaining format implementation code stays in `CImg.h` for later phased moves.
+- _2026-02-10_: Phase 1 extraction step 24: moved `cimg_float16`/`cimg_is_float16` setup, macro-conflict handling (`min`/`max`/`PI`), and user-friendly `cimg_*` macro utility block into `module/core/utils.h` and included it from `CImg.h` without functional changes.
+- _2026-02-10_: `/module/core` phase-1 header extraction is now complete for top-level core blocks (`version.h`, `platform.h`, `types.h`, `config.h`, `utils.h`); deeper implementation refactors remain in `CImg.h` for later phased moves.
+
+
 ## Risk register and mitigations
 - **Risk:** Macro ordering regressions.
   - **Mitigation:** Lock include order in `module/cimg_all.h`; add compile checks for key macros.
