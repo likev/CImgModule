@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 370
+#include "module/core/version.h"
 
 /*-----------------------------------------------------------
  #
@@ -109,13 +109,6 @@
 #error CImg Library: Invalid configuration variable 'cimg_OS'.
 #error (correct values are '0 = unknown OS', '1 = Unix-like OS', '2 = Microsoft Windows').
 #endif
-#ifndef cimg_date
-#define cimg_date __DATE__
-#endif
-#ifndef cimg_time
-#define cimg_time __TIME__
-#endif
-
 // Disable silly warnings on some Microsoft VC++ compilers.
 #ifdef _MSC_VER
 #pragma warning(push)

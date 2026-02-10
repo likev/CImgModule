@@ -106,6 +106,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Completed Phase 0 inventory/dependency mapping in `module/MAP.md`.
 - _2026-02-10_: Created `/module` scaffolding headers and canonical include-order umbrella `module/cimg_all.h` (no functional code moves yet).
 - _2026-02-10_: Added initial verification matrix in `module/VERIFY.md` and validated baseline tutorial compile with `-fmax-errors=1`.
+- _2026-02-10_: Phase 1 extraction step 1: moved `cimg_version`/`cimg_date`/`cimg_time` defaults into `module/core/version.h` and included it from `CImg.h` without changing public macro semantics.
 - _YYYY-MM-DD_: Added dedicated feature-branch requirement for this major refactor.
 - _YYYY-MM-DD_: Added explicit progress-tracking checklist and log section.
 - _YYYY-MM-DD_: Added small-step extraction + per-step compile gate (`/examples/tutorial.cpp`, first-error-only mode).
