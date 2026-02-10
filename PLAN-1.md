@@ -138,6 +138,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: `/module/io` phase-1 header extraction is now complete for top-level dependency/config include blocks (`io_common.h` + `io_formats_image.h`); remaining format implementation code stays in `CImg.h` for later phased moves.
 - _2026-02-10_: Phase 1 extraction step 24: moved `cimg_float16`/`cimg_is_float16` setup, macro-conflict handling (`min`/`max`/`PI`), and user-friendly `cimg_*` macro utility block into `module/core/utils.h` and included it from `CImg.h` without functional changes.
 - _2026-02-10_: `/module/core` phase-1 header extraction is now complete for top-level core blocks (`version.h`, `platform.h`, `types.h`, `config.h`, `utils.h`); deeper implementation refactors remain in `CImg.h` for later phased moves.
+- _2026-02-10_: Phase 1 extraction step 25: moved VT100 color escape sequences (`cimg::t_*`) into `module/math/math_core.h` and included it from `CImg.h` without functional changes.
 
 
 ## Risk register and mitigations
