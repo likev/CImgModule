@@ -19,6 +19,7 @@ Tracking compile/runtime parity checks during and after modular extraction.
 | Representative compile after math extraction steps 26-28 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving `namespace cimg` helpers and math operator overloads into `module/math` (with `math_colors.h` split + include reorder) preserves umbrella include compile behavior. |
 | Representative compile after math parser extraction step 29 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving `CImg<T>::_cimg_math_parser` into `module/math/math_parser.h` preserves umbrella include compile behavior. |
 | Representative compile after containers extraction step 30 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving `CImgList<T>` into `module/containers/list.h` preserves umbrella include compile behavior. |
+| Representative compile after display extraction step 31 | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | Confirms moving `CImgDisplay` into `module/display/display_core.h` preserves umbrella include compile behavior. |
 
 
 ## Feature flag matrix (to fill during Phases 1-3)

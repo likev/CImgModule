@@ -10,7 +10,7 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 - Core build/environment config anchor (comment `Test and possibly auto-set CImg configuration variables`) starts near line 71 and runs through feature toggles (OpenMP/display/libs).
 - Public API namespace anchor (`namespace cimg_library {`) opens near line 2315.
 - Core helper namespace anchor (`namespace cimg {`) appears in two main blocks: ~2326-2514 and ~2692-8302.
-- Display abstraction anchor (`class CImgDisplay`) spans ~8472-12621.
+- Display abstraction anchor (`struct CImgDisplay`) extracted to `module/display/display_core.h` (previously ~8472-12621).
 - Image class anchor (`template<typename T> class CImg`) spans ~12727-63519.
 - Container class anchor (`template<typename T> struct CImgList`) extracted to `module/containers/list.h` (previously ~63534-68691).
 - Final helper tail anchor (`namespace cimg {` block after `CImgList`) now follows `#include "module/containers/list.h"` and closes near 68695-70137.
