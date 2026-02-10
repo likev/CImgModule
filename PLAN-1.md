@@ -95,7 +95,7 @@ Deliverable: documentation section in `README.md`.
 - Update this section as work advances so status is visible in a single place.
 
 ### Phase status checklist
-- [ ] Phase 0 — Inventory and dependency mapping
+- [x] Phase 0 — Inventory and dependency mapping
 - [ ] Phase 1 — Non-functional extraction
 - [ ] Phase 2 — Stabilize include graph
 - [ ] Phase 3 — Verification matrix
@@ -103,8 +103,10 @@ Deliverable: documentation section in `README.md`.
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-1 and define module split strategy.
+- _2026-02-10_: Completed Phase 0 inventory/dependency mapping in `module/MAP.md`.
+- _2026-02-10_: Created `/module` scaffolding headers and canonical include-order umbrella `module/cimg_all.h` (no functional code moves yet).
+- _2026-02-10_: Added initial verification matrix in `module/VERIFY.md` and validated baseline tutorial compile with `-fmax-errors=1`.
 - _YYYY-MM-DD_: Added dedicated feature-branch requirement for this major refactor.
-- _YYYY-MM-DD_: Added backup/restore safeguards (`.bak`) before moving code blocks.
 - _YYYY-MM-DD_: Added explicit progress-tracking checklist and log section.
 - _YYYY-MM-DD_: Added small-step extraction + per-step compile gate (`/examples/tutorial.cpp`, first-error-only mode).
 
