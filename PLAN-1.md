@@ -152,6 +152,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 36: moved `CImg<T>` iterator/value/type alias block into `module/image/image_class_decl.h` and included it inside `CImg<T>`.
 - _2026-02-10_: Phase 1 extraction step 37: moved `CImg<T>` constructors/destructor/instance management block into `module/image/image_ops_basic.h` and included it inside `CImg<T>`.
 - _2026-02-10_: Phase 1 extraction step 38: moved `CImg<T>` instance characteristics (dimensions/data/iterators/linear setters/value string) into `module/image/image_pixels.h` and included it inside `CImg<T>`.
+- _2026-02-11_: Phase 1 extraction step 39: moved `CImg<T>` instance checking (`is_shared`, `is_empty`, `is_same*`, `contains*`, `is_overlapped`, `is_object3d`) into `module/image/image_ops_advanced.h` and included it inside `CImg<T>`.
 
 
 ## Risk register and mitigations
