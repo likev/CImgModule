@@ -23,3 +23,29 @@ The **CImg Library** is a **small** and **open-source** **C++ library** for **im
 > **CImg** stands for **Cool Image** : It is _easy to use_, _efficient_ and is intended to be a very pleasant toolbox to design image processing algorithms in C++. Due to its generic conception, it can cover a wide range of image processing applications.
 
 ------------------
+
+## Modular Include Entry Points (Phase 4)
+
+`CImg.h` remains the primary and recommended public entry point.
+
+Supported include entry points:
+- `#include "CImg.h"`: canonical public API include.
+- `#include "module/cimg_all.h"`: module umbrella entry point (currently delegates to `CImg.h` with equivalent behavior).
+
+Supported selective build profiles (advanced users):
+- Image/math core profile (reduced dependencies): keep optional I/O macros undefined and disable display before include, then include `CImg.h`.
+- Feature-enabled profile: enable only the optional libraries you need (e.g. `cimg_use_openmp=1`, `cimg_use_png=1`) before include, then include `CImg.h`.
+
+Example (reduced-dependency profile):
+
+```cpp
+#define cimg_display 0
+#define cimg_use_openmp 0
+#include "CImg.h"
+```
+
+Important compatibility note:
+- Most headers under `/module` are currently internal extraction fragments that depend on specific namespace/class inclusion context.
+- Directly including sub-headers like `module/image/*`, `module/io/*`, `module/core/cimg_namespace_*` is not a stable public API yet.
+- Use only `CImg.h` or `module/cimg_all.h` as public include entry points for now.
+- For optional I/O features, do not define the corresponding `cimg_use_*` macro unless you want to enable that dependency (`#ifdef` semantics).

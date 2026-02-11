@@ -100,7 +100,7 @@ Deliverable: documentation section in `README.md`.
 - [x] Phase 1 — Non-functional extraction
 - [x] Phase 2 — Stabilize include graph
 - [x] Phase 3 — Verification matrix
-- [ ] Phase 4 — Optional selective include support
+- [x] Phase 4 — Optional selective include support
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-1 and define module split strategy.
@@ -162,6 +162,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-11_: Phase 1 close-out: completed extraction/doc updates and expanded `module/VERIFY.md` compile matrix (display/OpenMP/strict-warning checks passed; JPEG/TIFF smoke checks blocked only by missing environment development headers).
 - _2026-02-11_: Phase 2 step 1: stabilized include graph by making `module/cimg_all.h` the deterministic module umbrella delegating to `CImg.h`, documenting scope-dependent module-fragment prerequisites, and validating umbrella compile parity.
 - _2026-02-11_: Phase 3 step 1: expanded verification matrix with additional representative example compiles (`use_RGBclass`, `use_nlmeans`, `captcha`, `plotter1d`) and added symbol parity check (`CImg.h` vs `module/cimg_all.h`) showing identical `nm -C` output for equivalent translation units.
+- _2026-02-11_: Phase 4 step 1: added `README.md` documentation for supported include entry points (`CImg.h`, `module/cimg_all.h`), selective build-profile guidance, and explicit compatibility caveats for internal `/module` fragment headers; added compile probes for documented selective profiles in `module/VERIFY.md`.
 
 
 ## Risk register and mitigations
