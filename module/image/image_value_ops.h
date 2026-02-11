@@ -1,6 +1,21 @@
 #ifndef CIMG_MODULE_IMAGE_VALUE_OPS_H
 #define CIMG_MODULE_IMAGE_VALUE_OPS_H
 
+    //! Set pixel value, using linear interpolation for the X-coordinates.
+    /**
+       Set pixel value at specified coordinates (\c fx,\c y,\c z,\c c) in the image instance, in a way that
+       the value is spread amongst several neighbors if the pixel coordinates are float-valued.
+       \param value Pixel value to set.
+       \param fx X-coordinate of the pixel value (float-valued).
+       \param y Y-coordinate of the pixel value.
+       \param z Z-coordinate of the pixel value.
+       \param c C-coordinate of the pixel value.
+       \param is_added Tells if the pixel value is added to (\c true), or simply replace (\c false) the current image
+         pixel(s).
+       \return A reference to the current image instance.
+       \note
+       - Calling this method with out-of-bounds coordinates does nothing.
+    **/
     CImg<T>& set_linear_atX(const T& value, const float fx, const int y=0, const int z=0, const int c=0,
                             const bool is_added=false) {
       const int

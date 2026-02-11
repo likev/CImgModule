@@ -1,5 +1,14 @@
 #ifndef CIMG_MODULE_IMAGE_BODY_DRAW_2_H
 #define CIMG_MODULE_IMAGE_BODY_DRAW_2_H
+    //! Draw an image.
+    /**
+       \param sprite Sprite image.
+       \param x0 X-coordinate of the sprite position.
+       \param y0 Y-coordinate of the sprite position.
+       \param z0 Z-coordinate of the sprite position.
+       \param c0 C-coordinate of the sprite position.
+       \param opacity Drawing opacity.
+    **/
     template<typename t>
     CImg<T>& draw_image(const int x0, const int y0, const int z0, const int c0,
                         const CImg<t>& sprite, const float opacity=1) {

@@ -1,6 +1,22 @@
 #ifndef CIMG_MODULE_IMAGE_OBJECT3D_OPS_H
 #define CIMG_MODULE_IMAGE_OBJECT3D_OPS_H
 
+    //! Test if the set {\c *this,\c primitives,\c colors,\c opacities} defines a valid 3D object.
+    /**
+       Return \c true is the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} defines a
+       valid 3D object, and \c false otherwise. The vertex coordinates are defined by the instance image.
+       \param primitives List of primitives of the 3D object.
+       \param colors List of colors of the 3D object.
+       \param opacities List (or image) of opacities of the 3D object.
+       \param full_check Tells if full checking of the 3D object must be performed.
+       \param[out] error_message C-string to contain the error message, if the test does not succeed
+                   (at least 256 bytes).
+       \note
+       - Set \c full_checking to \c false to speed-up the 3D object checking. In this case, only the size of
+         each 3D object component is checked.
+       - Size of the string \c error_message should be at least 128-bytes long, to be able to contain the error message.
+    **/
+    template<typename tp, typename tc, typename to>
     bool is_object3d(const CImgList<tp>& primitives,
                      const CImgList<tc>& colors,
                      const to& opacities,

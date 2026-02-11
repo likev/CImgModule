@@ -2892,13 +2892,4 @@
       return *this;
     }
 
-    //! Draw an image.
-    /**
-       \param sprite Sprite image.
-       \param x0 X-coordinate of the sprite position.
-       \param y0 Y-coordinate of the sprite position.
-       \param z0 Z-coordinate of the sprite position.
-       \param c0 C-coordinate of the sprite position.
-       \param opacity Drawing opacity.
-    **/
 #endif
