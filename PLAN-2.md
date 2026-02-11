@@ -146,3 +146,16 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 ## Definition of done
 - No `module/**` file exceeds `3000` lines.
 - All Phase 1-3 verification checks pass.
+
+## Progress tracking
+- Update this section as work advances so status is visible in a single place.
+
+### Phase status checklist
+- [ ] Phase 0 — Baseline and guardrails
+- [ ] Phase 1 — Image module split
+- [ ] Phase 2 — Math split
+- [ ] Phase 3 — IO, display, containers split
+- [ ] Phase 4 — Threshold cleanup and consolidation
+
+### Change log
+- _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.
