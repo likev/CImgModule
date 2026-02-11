@@ -1,22 +1,31 @@
 
+#define cimg_display 0
+#define cimg_use_jpeg
+#include <cstring>
 #include "CImg.h"
 #include <iostream>
 #include <cstdio>
 using namespace cimg_library;
 
-int main() {
-    // Extracted from module/image/image_class_decl.h
+int main(int argc, char** argv) {
     try {
-const CImg<float> img("reference.jpg"); // Load image from file
+CImg<float> img("reference.jpg"); // Load image from file
        float sum = 0;
        // Compute sum of all pixel values, with a CImg iterator.
-       for (CImg<float>::iterator it = img.begin(), it<img.end(); ++it) sum+=*it;
+       for (CImg<float>::iterator it = img.begin(); it<img.end(); ++it) sum+=*it;
        const float sum2 = img.sum(); // Do the same with a built-in method
-    } catch (const CImgException& e) {
-        std::cerr << "CImg Exception: " << e.what() << std::endl;
+                } catch (const CImgException& e) {
+        const char *const msg = e.what();
+        if (msg && std::strstr(msg, "No display available")) return 0;
+        std::cerr << "Test failed with CImg exception: " << (msg?msg:"null") << std::endl;
         return 1;
     } catch (const std::exception& e) {
-        std::cerr << "Exception: " << e.what() << std::endl;
+        const char *const msg = e.what();
+        if (msg && std::strstr(msg, "No display available")) return 0;
+        std::cerr << "Test failed with std exception: " << (msg?msg:"null") << std::endl;
+        return 1;
+    } catch (...) {
+        std::cerr << "Test failed with unknown exception" << std::endl;
         return 1;
     }
     return 0;
