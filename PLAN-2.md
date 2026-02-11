@@ -151,11 +151,16 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 - Update this section as work advances so status is visible in a single place.
 
 ### Phase status checklist
-- [ ] Phase 0 — Baseline and guardrails
-- [ ] Phase 1 — Image module split
-- [ ] Phase 2 — Math split
-- [ ] Phase 3 — IO, display, containers split
-- [ ] Phase 4 — Threshold cleanup and consolidation
+- [x] Phase 0 — Baseline and guardrails
+- [x] Phase 1 — Image module split
+- [x] Phase 2 — Math split
+- [x] Phase 3 — IO, display, containers split
+- [x] Phase 4 — Threshold cleanup and consolidation
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.
+- _2026-02-11_: Completed Phase 0: added baseline matrix to `module/VERIFY.md`, created `resources/check_line_counts.sh`, and validated current compile/symbol baseline.
+- _2026-02-11_: Completed Phase 1: Split `image_class_body.h`, `image_pixels.h`, and `image_ops_advanced.h` into smaller cohesive units. All `module/image/*` files are now < 3000 lines. Verified with compile/symbol parity checks.
+- _2026-02-11_: Completed Phase 2: Split `math_parser.h` and `math_core.h` into smaller units. All `module/math/*` files are now < 3000 lines.
+- _2026-02-11_: Completed Phase 3: Split `image_load.h`, `image_save.h`, `display_core.h`, and `list.h` into smaller units. All `module/io/*`, `module/display/*`, and `module/containers/*` files are now < 3000 lines.
+- _2026-02-11_: Completed Phase 4: Final verification of all `module/**` line counts. All files are confirmed to be within the 3000-line threshold.

@@ -59,3 +59,25 @@ Tracking compile/runtime parity checks during and after modular extraction.
 ## Notes
 
 - This file is intentionally incremental and should be updated after every extraction milestone.
+
+# Verification matrix (PLAN-2)
+
+Tracking compile/runtime parity checks during and after splitting oversized module files.
+
+## Baseline checks (PLAN-2)
+
+| Check | Command | Status | Notes |
+|---|---|---|---|
+| Representative compile (umbrella include path) | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/tutorial.o` | ✅ Pass | PLAN-2 baseline before splitting. |
+| Symbol parity (PLAN-2 baseline) | `nm -C examples/tutorial.o | sort` | ✅ Pass | Recorded for parity checks after splits. |
+| Line count threshold check | `./resources/check_line_counts.sh` | ⚠️ Fail | Current baseline has files over 3000 lines. |
+
+## Phase status matrix
+
+| Phase | Milestone | Status | Notes |
+|---|---|---|---|
+| Phase 0 | Baseline and guardrails | ✅ Done | Baseline recorded and line-count script added. |
+| Phase 1 | Image module split | ✅ Done | `image_class_body.h` and others split. All `<3000` lines. |
+| Phase 2 | Math split | ✅ Done | `math_parser.h` and `math_core.h` split. All `<3000` lines. |
+| Phase 3 | IO, display, containers split | ✅ Done | `image_load.h`, `image_save.h`, `display_core.h`, `list.h` split. |
+| Phase 4 | Threshold cleanup | ✅ Done | All `module/**` files are within 3000 lines. |
