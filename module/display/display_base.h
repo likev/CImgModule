@@ -1258,8 +1258,8 @@
        \note Make key() to return \c 0, if called afterwards.
     **/
     CImgDisplay& set_key() {
-      std::memset((void*)_keys,0,128*sizeof(unsigned int));
-      std::memset((void*)_released_keys,0,128*sizeof(unsigned int));
+      if (_keys) std::memset((void*)_keys,0,128*sizeof(unsigned int));
+      if (_released_keys) std::memset((void*)_released_keys,0,128*sizeof(unsigned int));
       _is_keyESC = _is_keyF1 = _is_keyF2 = _is_keyF3 = _is_keyF4 = _is_keyF5 = _is_keyF6 = _is_keyF7 = _is_keyF8 =
         _is_keyF9 = _is_keyF10 = _is_keyF11 = _is_keyF12 = _is_keyPAUSE = _is_key1 = _is_key2 = _is_key3 = _is_key4 =
         _is_key5 = _is_key6 = _is_key7 = _is_key8 = _is_key9 = _is_key0 = _is_keyBACKSPACE = _is_keyINSERT =
