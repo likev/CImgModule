@@ -153,6 +153,9 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-10_: Phase 1 extraction step 37: moved `CImg<T>` constructors/destructor/instance management block into `module/image/image_ops_basic.h` and included it inside `CImg<T>`.
 - _2026-02-10_: Phase 1 extraction step 38: moved `CImg<T>` instance characteristics (dimensions/data/iterators/linear setters/value string) into `module/image/image_pixels.h` and included it inside `CImg<T>`.
 - _2026-02-11_: Phase 1 extraction step 39: moved `CImg<T>` instance checking (`is_shared`, `is_empty`, `is_same*`, `contains*`, `is_overlapped`, `is_object3d`) into `module/image/image_ops_advanced.h` and included it inside `CImg<T>`.
+- _2026-02-11_: Phase 1 extraction step 40: moved `CImg<T>` pointwise math transform block (`_cimg_create_pointwise_functions`, unary transforms, `atan2`, `acosh/asinh/atanh`) into `module/image/image_ops_advanced.h`.
+- _2026-02-11_: Phase 1 extraction step 41: moved the remaining in-class `CImg<T>` implementation body into `module/image/image_class_body.h`; `CImg.h` now keeps only image fields plus `module/image/image_class_decl.h` and `module/image/image_class_body.h` includes for `CImg<T>`.
+- _2026-02-11_: `/module/image` extraction is now complete for `CImg<T>` class content in phase 1; further cleanup/splitting can be done during Phase 2 stabilization.
 
 
 ## Risk register and mitigations

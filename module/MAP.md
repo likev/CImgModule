@@ -37,6 +37,8 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 | `CImg<T>` constructors/destructor/instance management (constructors, assign/clear, move/swap, empty) | `module/image/image_ops_basic.h` | Constructor/destructor block extracted wholesale. |
 | `CImg<T>` instance characteristics (dimensions/data/offset/iterators, linear interpolation setters, `value_string`) | `module/image/image_pixels.h` | Extracted as pixel-access and basic instance metadata. |
 | `CImg<T>` instance checking (`is_*` dimension checks, bounds/overlap checks, `is_object3d`) | `module/image/image_ops_advanced.h` | Extracted as a contiguous validation/checking block. |
+| `CImg<T>` pointwise math transforms (`sqr`/`sqrt`/`exp`/`log*`/`trig`/`atan2`/`acosh`/`asinh`/`atanh`) | `module/image/image_ops_advanced.h` | Extracted as a contiguous unary math-operation block (macro-generated methods + `atan2`). |
+| Remaining `CImg<T>` in-class body (operators, algorithms, display helpers, serialization/logo, and in-class module includes) | `module/image/image_class_body.h` | Extracted as the class-body umbrella so `CImg.h` keeps only fields plus image-class includes. |
 | `CImgList<T>` + list helpers | `module/containers/list.h` | Depends on `CImg<T>` and core utilities. |
 | `CImg<T>::load*`/`save*` methods | `module/io/image_load.h`, `module/io/image_save.h` | Included inside the `CImg<T>` class body. |
 | Format loaders/savers and stream helpers | `module/io/io_common.h`, `module/io/io_formats_*.h` | Maintain conditional-compile gates. |
