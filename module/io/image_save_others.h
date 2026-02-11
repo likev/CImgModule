@@ -1,5 +1,9 @@
 #ifndef CIMG_MODULE_IMAGE_SAVE_OTHERS_H
 #define CIMG_MODULE_IMAGE_SAVE_OTHERS_H
+    //! Save image as a PFM file.
+    /**
+      \param filename Filename, as a C-string.
+    **/
 
     const CImg<T>& save_pfm(const char *const filename) const {
       get_mirror('y')._save_pfm(0,filename);

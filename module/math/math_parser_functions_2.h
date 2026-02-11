@@ -1,6 +1,21 @@
 #ifndef CIMG_MODULE_MATH_PARSER_FUNCTIONS_2_H
 #define CIMG_MODULE_MATH_PARSER_FUNCTIONS_2_H
 
+#define _mp_arg(x) mp.mem[mp.opcode[x]]
+
+      static double mp_image_shift(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int
+          w = (unsigned int)mp.opcode[3],
+          h = (unsigned int)mp.opcode[4],
+          d = (unsigned int)mp.opcode[5],
+          s = (unsigned int)mp.opcode[6];
+        const double dx = _mp_arg(7), dy = _mp_arg(8), dz = _mp_arg(9), dc = _mp_arg(10);
+        const unsigned int boundary_conditions = (unsigned int)cimg::cut(_mp_arg(11),0.,3.);
+        CImg<doubleT>(ptrd,w,h,d,s,true) =
+          CImg<doubleT>(ptrs,w,h,d,s,true).get_shift(dx,dy,dz,dc,boundary_conditions);
+        return cimg::type<double>::nan();
       }
 
       static double mp_image_sort(_cimg_math_parser& mp) {

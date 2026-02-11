@@ -1,5 +1,11 @@
 #ifndef CIMG_MODULE_IMAGE_LOAD_OTHERS_H
 #define CIMG_MODULE_IMAGE_LOAD_OTHERS_H
+    //! Load image from a .cimg[z] file.
+    /**
+      \param filename Filename, as a C-string.
+      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
+      \param align Appending alignment.
+    **/
 
     CImg<T>& load_cimg(const char *const filename, const char axis='z', const float align=0) {
       CImgList<T> list;

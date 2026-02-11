@@ -1,5 +1,5 @@
-#ifndef CIMG_MODULE_IMAGE_BODY_FILTERS_BASE_H
-#define CIMG_MODULE_IMAGE_BODY_FILTERS_BASE_H
+#ifndef CIMG_MODULE_IMAGE_BODY_FILTERS_1_H
+#define CIMG_MODULE_IMAGE_BODY_FILTERS_1_H
 
     //---------------------------------------
     //

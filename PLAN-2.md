@@ -132,6 +132,11 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 2. Ensure every `module/**` file is `<=3000` lines.
 3. Consolidate tiny shards if fragmentation is excessive.
 
+### Phase 5: Verify and Fix Function Integrity
+1. Audit all split files to ensure no single function body or logic block is split across multiple files.
+2. If any function is found to be split (e.g., partial function in one file, rest in another), refactor to keep the function unit intact within a single file.
+3. Verify that all split boundaries occur at natural logical points (between functions, classes, or independent blocks).
+
 ## Verification requirements
 - Compile parity:
   - `#include "CImg.h"`
@@ -156,6 +161,7 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 - [x] Phase 2 — Math split
 - [x] Phase 3 — IO, display, containers split
 - [x] Phase 4 — Threshold cleanup and consolidation
+- [x] Phase 5 — Verify and Fix Function Integrity
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.

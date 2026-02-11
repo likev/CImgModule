@@ -1,4 +1,5 @@
 #ifndef CIMG_MODULE_DISPLAY_WIN32_H
+// GDI32-based implementation.
 #define CIMG_MODULE_DISPLAY_WIN32_H
 
 #if cimg_display==2

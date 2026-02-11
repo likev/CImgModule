@@ -237,8 +237,4 @@
       return *this;
     }
 
-    //! Save image as a BMP file.
-    /**
-      \param filename Filename, as a C-string.
-    **/
 #endif

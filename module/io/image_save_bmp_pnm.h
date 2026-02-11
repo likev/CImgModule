@@ -1,5 +1,9 @@
 #ifndef CIMG_MODULE_IMAGE_SAVE_BMP_PNM_H
 #define CIMG_MODULE_IMAGE_SAVE_BMP_PNM_H
+    //! Save image as a BMP file.
+    /**
+      \param filename Filename, as a C-string.
+    **/
 
     const CImg<T>& save_bmp(const char *const filename) const {
       return _save_bmp(0,filename);
@@ -985,8 +989,4 @@
       return *this;
     }
 
-    //! Save image as a PFM file.
-    /**
-      \param filename Filename, as a C-string.
-    **/
 #endif

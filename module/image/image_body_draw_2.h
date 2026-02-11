@@ -1,5 +1,1106 @@
-#ifndef CIMG_MODULE_IMAGE_BODY_DRAW_MISC_H
-#define CIMG_MODULE_IMAGE_BODY_DRAW_MISC_H
+#ifndef CIMG_MODULE_IMAGE_BODY_DRAW_2_H
+#define CIMG_MODULE_IMAGE_BODY_DRAW_2_H
+    template<typename t>
+    CImg<T>& draw_image(const int x0, const int y0, const int z0, const int c0,
+                        const CImg<t>& sprite, const float opacity=1) {
+      if (is_empty() || !sprite) return *this;
+      if (is_overlapped(sprite)) return draw_image(x0,y0,z0,c0,+sprite,opacity);
+      if (x0==0 && y0==0 && z0==0 && c0==0 && is_sameXYZC(sprite) && opacity>=1 && !is_shared())
+        return assign(sprite,false);
+      const bool bx = x0<0, by = y0<0, bz = z0<0, bc = c0<0;
+      const int
+        dx0 = bx?0:x0, dy0 = by?0:y0, dz0 = bz?0:z0, dc0 = bc?0:c0,
+        sx0 = dx0 - x0,  sy0 = dy0 - y0, sz0 = dz0 - z0, sc0 = dc0 - c0,
+        lx = sprite.width() - sx0 - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0),
+        ly = sprite.height() - sy0 - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0),
+        lz = sprite.depth() - sz0 - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0),
+        lc = sprite.spectrum() - sc0 - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0);
+
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
+      if (lx>0 && ly>0 && lz>0 && lc>0) {
+        for (int c = 0; c<lc; ++c)
+          for (int z = 0; z<lz; ++z)
+            for (int y = 0; y<ly; ++y) {
+              T *ptrd = data(dx0,dy0 + y,dz0 + z,dc0 + c);
+              const t *ptrs = sprite.data(sx0,sy0 + y,sz0 + z,sc0 + c);
+              if (opacity>=1) for (int x = 0; x<lx; ++x) *(ptrd++) = (T)*(ptrs++);
+              else for (int x = 0; x<lx; ++x) { *ptrd = (T)(nopacity*(*(ptrs++)) + *ptrd*copacity); ++ptrd; }
+            }
+      }
+      return *this;
+    }
+
+    //! Draw an image \specialization.
+    CImg<T>& draw_image(const int x0, const int y0, const int z0, const int c0,
+                        const CImg<T>& sprite, const float opacity=1) {
+      if (is_empty() || !sprite) return *this;
+      if (is_overlapped(sprite)) return draw_image(x0,y0,z0,c0,+sprite,opacity);
+      if (x0==0 && y0==0 && z0==0 && c0==0 && is_sameXYZC(sprite) && opacity>=1 && !is_shared())
+        return assign(sprite,false);
+      const bool bx = x0<0, by = y0<0, bz = z0<0, bc = c0<0;
+      const int
+        dx0 = bx?0:x0, dy0 = by?0:y0, dz0 = bz?0:z0, dc0 = bc?0:c0,
+        sx0 = dx0 - x0,  sy0 = dy0 - y0, sz0 = dz0 - z0, sc0 = dc0 - c0,
+        lx = sprite.width() - sx0 - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0),
+        ly = sprite.height() - sy0 - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0),
+        lz = sprite.depth() - sz0 - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0),
+        lc = sprite.spectrum() - sc0 - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0);
+      const ulongT slx = lx*sizeof(T);
+
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
+      if (lx>0 && ly>0 && lz>0 && lc>0) {
+        for (int c = 0; c<lc; ++c)
+          for (int z = 0; z<lz; ++z)
+            for (int y = 0; y<ly; ++y) {
+              T *ptrd = data(dx0,dy0 + y,dz0 + z,dc0 + c);
+              const T *ptrs = sprite.data(sx0,sy0 + y,sz0 + z,sc0 + c);
+              if (opacity>=1) std::memcpy(ptrd,ptrs,slx);
+              else for (int x = 0; x<lx; ++x) { *ptrd = (T)(nopacity*(*(ptrs++)) + *ptrd*copacity); ++ptrd; }
+            }
+      }
+      return *this;
+    }
+
+    //! Draw an image \overloading.
+    template<typename t>
+    CImg<T>& draw_image(const int x0, const int y0, const int z0,
+                        const CImg<t>& sprite, const float opacity=1) {
+      return draw_image(x0,y0,z0,0,sprite,opacity);
+    }
+
+    //! Draw an image \overloading.
+    template<typename t>
+    CImg<T>& draw_image(const int x0, const int y0,
+                        const CImg<t>& sprite, const float opacity=1) {
+      return draw_image(x0,y0,0,sprite,opacity);
+    }
+
+    //! Draw an image \overloading.
+    template<typename t>
+    CImg<T>& draw_image(const int x0,
+                        const CImg<t>& sprite, const float opacity=1) {
+      return draw_image(x0,0,sprite,opacity);
+    }
+
+    //! Draw an image \overloading.
+    template<typename t>
+    CImg<T>& draw_image(const CImg<t>& sprite, const float opacity=1) {
+      return draw_image(0,sprite,opacity);
+    }
+
+    //! Draw a masked image.
+    /**
+       \param sprite Sprite image.
+       \param mask Mask image.
+       \param x0 X-coordinate of the sprite position in the image instance.
+       \param y0 Y-coordinate of the sprite position in the image instance.
+       \param z0 Z-coordinate of the sprite position in the image instance.
+       \param c0 C-coordinate of the sprite position in the image instance.
+       \param mask_max_value Maximum pixel value of the mask image \c mask.
+       \param opacity Drawing opacity.
+       \note
+       - Pixel values of \c mask set the opacity of the corresponding pixels in \c sprite.
+       - Dimensions along x,y and z of \p sprite and \p mask must be the same.
+    **/
+    template<typename ti, typename tm>
+    CImg<T>& draw_image(const int x0, const int y0, const int z0, const int c0,
+                        const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
+                        const float mask_max_value=1) {
+      if (is_empty() || !sprite || !mask) return *this;
+      if (is_overlapped(sprite)) return draw_image(x0,y0,z0,c0,+sprite,mask,opacity,mask_max_value);
+      if (is_overlapped(mask)) return draw_image(x0,y0,z0,c0,sprite,+mask,opacity,mask_max_value);
+      if (mask._width!=sprite._width || mask._height!=sprite._height || mask._depth!=sprite._depth)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_image(): Sprite (%u,%u,%u,%u,%p) and mask (%u,%u,%u,%u,%p) have "
+                                    "incompatible dimensions.",
+                                    cimg_instance,
+                                    sprite._width,sprite._height,sprite._depth,sprite._spectrum,sprite._data,
+                                    mask._width,mask._height,mask._depth,mask._spectrum,mask._data);
+
+      const bool bx = x0<0, by = y0<0, bz = z0<0, bc = c0<0;
+      const int
+        dx0 = bx?0:x0, dy0 = by?0:y0, dz0 = bz?0:z0, dc0 = bc?0:c0,
+        sx0 = dx0 - x0,  sy0 = dy0 - y0, sz0 = dz0 - z0, sc0 = dc0 - c0,
+        lx = sprite.width() - sx0 - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0),
+        ly = sprite.height() - sy0 - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0),
+        lz = sprite.depth() - sz0 - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0),
+        lc = sprite.spectrum() - sc0 - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0);
+      const ulongT msize = mask.size();
+
+      if (lx>0 && ly>0 && lz>0 && lc>0) {
+        for (int c = 0; c<lc; ++c)
+          for (int z = 0; z<lz; ++z)
+            for (int y = 0; y<ly; ++y) {
+              T *ptrd = data(dx0,dy0 + y,dz0 + z,dc0 + c);
+              const ti *ptrs = sprite.data(sx0,sy0 + y,sz0 + z,sc0 + c);
+              const tm *ptrm = mask._data + (mask.offset(sx0,sy0 + y,sz0 + z,sc0 + c)%msize);
+              for (int x = 0; x<lx; ++x) {
+                const float mopacity = (float)(*(ptrm++)*opacity),
+                  nopacity = cimg::abs(mopacity), copacity = mask_max_value - std::max(mopacity,0.f);
+                *ptrd = (T)((nopacity*(*(ptrs++)) + *ptrd*copacity)/mask_max_value);
+                ++ptrd;
+              }
+            }
+      }
+      return *this;
+    }
+
+    //! Draw a masked image \overloading.
+    template<typename ti, typename tm>
+    CImg<T>& draw_image(const int x0, const int y0, const int z0,
+                        const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
+                        const float mask_max_value=1) {
+      return draw_image(x0,y0,z0,0,sprite,mask,opacity,mask_max_value);
+    }
+
+    //! Draw a image \overloading.
+    template<typename ti, typename tm>
+    CImg<T>& draw_image(const int x0, const int y0,
+                        const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
+                        const float mask_max_value=1) {
+      return draw_image(x0,y0,0,sprite,mask,opacity,mask_max_value);
+    }
+
+    //! Draw a image \overloading.
+    template<typename ti, typename tm>
+    CImg<T>& draw_image(const int x0,
+                        const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
+                        const float mask_max_value=1) {
+      return draw_image(x0,0,sprite,mask,opacity,mask_max_value);
+    }
+
+    //! Draw an image.
+    template<typename ti, typename tm>
+    CImg<T>& draw_image(const CImg<ti>& sprite, const CImg<tm>& mask, const float opacity=1,
+                        const float mask_max_value=1) {
+      return draw_image(0,sprite,mask,opacity,mask_max_value);
+    }
+
+    //! Draw a text string.
+    /**
+       \param x0 X-coordinate of the text in the image instance.
+       \param y0 Y-coordinate of the text in the image instance.
+       \param text Format of the text ('printf'-style format string).
+       \param foreground_color Pointer to \c spectrum() consecutive values, defining the foreground drawing color.
+       \param background_color Pointer to \c spectrum() consecutive values, defining the background drawing color.
+       \param opacity Drawing opacity.
+       \param font Font used for drawing text.
+    **/
+    template<typename tc1, typename tc2, typename t>
+    CImg<T>& draw_text(const int x0, const int y0,
+                       const char *const text,
+                       const tc1 *const foreground_color, const tc2 *const background_color,
+                       const float opacity, const CImgList<t>* const font, ...) {
+      if (!font || !*font) return *this;
+      CImg<charT> tmp(2048);
+      std::va_list ap; va_start(ap,font); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,*font,false);
+    }
+
+    //! Draw a text string \overloading.
+    /**
+       \note A transparent background is used for the text.
+    **/
+    template<typename tc, typename t>
+    CImg<T>& draw_text(const int x0, const int y0,
+                       const char *const text,
+                       const tc *const foreground_color, const int,
+                       const float opacity, const CImgList<t>* const font, ...) {
+      if (!font || !*font) return *this;
+      CImg<charT> tmp(2048);
+      std::va_list ap; va_start(ap,font); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return _draw_text(x0,y0,tmp,foreground_color,(tc*)0,opacity,*font,false);
+    }
+
+    //! Draw a text string \overloading.
+    /**
+       \note A transparent foreground is used for the text.
+    **/
+    template<typename tc, typename t>
+    CImg<T>& draw_text(const int x0, const int y0,
+                       const char *const text,
+                       const int, const tc *const background_color,
+                       const float opacity, const CImgList<t>* const font, ...) {
+      if (!font || !*font) return *this;
+      CImg<charT> tmp(2048);
+      std::va_list ap; va_start(ap,font); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return _draw_text(x0,y0,tmp,(tc*)0,background_color,opacity,*font,false);
+    }
+
+    //! Draw a text string \overloading.
+    /**
+       \param x0 X-coordinate of the text in the image instance.
+       \param y0 Y-coordinate of the text in the image instance.
+       \param text Format of the text ('printf'-style format string).
+       \param foreground_color Array of spectrum() values of type \c T,
+         defining the foreground color (0 means 'transparent').
+       \param background_color Array of spectrum() values of type \c T,
+         defining the background color (0 means 'transparent').
+       \param opacity Drawing opacity.
+       \param font_height Height of the text font (exact match for 13,32,64,128, interpolated otherwise).
+    **/
+    template<typename tc1, typename tc2>
+    CImg<T>& draw_text(const int x0, const int y0,
+                       const char *const text,
+                       const tc1 *const foreground_color, const tc2 *const background_color,
+                       const float opacity=1, const unsigned int font_height=13, ...) {
+      if (!font_height) return *this;
+      CImg<charT> tmp(2048);
+      std::va_list ap; va_start(ap,font_height); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      const CImgList<ucharT>& font = CImgList<ucharT>::font(font_height,true);
+      _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,font,true);
+      return *this;
+    }
+
+    //! Draw a text string \overloading.
+    template<typename tc>
+    CImg<T>& draw_text(const int x0, const int y0,
+                       const char *const text,
+                       const tc *const foreground_color, const int background_color=0,
+                       const float opacity=1, const unsigned int font_height=13, ...) {
+      if (!font_height) return *this;
+      cimg::unused(background_color);
+      CImg<charT> tmp(2048);
+      std::va_list ap; va_start(ap,font_height); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return draw_text(x0,y0,"%s",foreground_color,(const tc*)0,opacity,font_height,tmp._data);
+    }
+
+    //! Draw a text string \overloading.
+    template<typename tc>
+    CImg<T>& draw_text(const int x0, const int y0,
+                       const char *const text,
+                       const int, const tc *const background_color,
+                       const float opacity=1, const unsigned int font_height=13, ...) {
+      if (!font_height) return *this;
+      CImg<charT> tmp(2048);
+      std::va_list ap; va_start(ap,font_height); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return draw_text(x0,y0,"%s",(tc*)0,background_color,opacity,font_height,tmp._data);
+    }
+
+    template<typename tc1, typename tc2, typename t>
+    CImg<T>& _draw_text(const int x0, const int y0,
+                        const char *const text,
+                        const tc1 *const foreground_color, const tc2 *const background_color,
+                        const float opacity, const CImgList<t>& font,
+                        const bool is_native_font) {
+      if (!text || !font) return *this;
+      const unsigned int text_length = (unsigned int)std::strlen(text);
+      const int padding_x = font[0]._height<48?1:font[0]._height<128?(int)std::ceil(font[0]._height/51.f + 0.745f):4;
+      unsigned char o_ch, ch = 0;
+      int x, y, w;
+      CImg<intT> left_paddings(text_length,1,1,1,0);
+      const CImg<t> empty = CImg<t>::empty();
+
+      if (is_empty() || is_native_font) {
+        // Pre-compute necessary size of the image as well as left paddings of each character.
+        x = y = w = 0;
+        o_ch = 0;
+        for (unsigned int i = 0; i<text_length; ++i) {
+          ch = (unsigned char)text[i];
+          switch (ch) {
+          case '\n' :
+            if (font._width>10) y+=font[10]._height; else y+=font[0]._height;
+            if (x>w) w = x;
+            x = 0;
+            break;
+          case '\t' :
+            if (font._width>32) x+=4*font[32]._width; else x+=4*font[0]._width;
+            break;
+          case ' ' :
+            if (font._width>32) x+=font[32]._width; else x+=font[0]._width;
+            break;
+          default : if (ch<font._width) {
+              int left_padding = 0;
+              if (is_native_font && font[0]._height<128) { /// Determine left padding for native fonts
+                if (ch==':' || ch=='!' || ch=='.' || ch==';')
+                  left_padding = 2*padding_x;
+                else if (o_ch==',' || (o_ch=='.' && (ch<'0' || ch>'9')) || o_ch==';' || o_ch==':' || o_ch=='!')
+                  left_padding = 4*padding_x;
+                else if (((o_ch=='i' || o_ch=='l' || o_ch=='I' || o_ch=='J' || o_ch=='M' || o_ch=='N') &&
+                          ((ch>='0' && ch<='9') ||
+                           (ch>='a' && ch<='z' && ch!='v' && ch!='x' && ch!='y') ||
+                           (ch>='B' && ch<='Z' && ch!='J' && ch!='T' && ch!='V' && ch!='X' && ch!='Y'))) ||
+                         o_ch=='.' || o_ch=='\'' || ch=='\'')
+                  left_padding = padding_x;
+                else if ((o_ch<'0' || o_ch>'9') && ch!='-') {
+                  const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
+                  if (o_ch && ch>' ' && o_ch>' ' && mask._height>13) {
+                    const CImg<t> &o_mask = o_ch + 256U<font._width?font[o_ch + 256]:empty;
+                    if (o_mask._height>13) {
+                      const int w1 = mask.width()>0?o_mask.width() - 1:0, w2 = w1>1?w1 - 1:0, w3 = w2>1?w2 - 1:0;
+                      left_padding = -10;
+                      cimg_forY(mask,k) {
+                        const int
+                          lpad = o_mask(w1,k)>=8?0:
+                                 o_mask._width<=2 || o_mask(w2,k)>=8?-1:
+                                 o_mask._width<=3 || o_mask(w3,k)>=8?-2:-3,
+                          rpad = mask(0,k)>=8?0:
+                                 mask._width<=2 || mask(1,k)>=8?-1:
+                                 mask._width<=3 || mask(2,k)>=8?-2:-3;
+                        left_padding = std::max(left_padding,lpad + rpad);
+                      }
+                    }
+                  }
+                }
+                left_paddings[i] = left_padding;
+              }
+              x+=left_padding + font[ch]._width + padding_x;
+              o_ch = ch;
+            }
+          }
+        }
+        if (x!=0 || ch=='\n') { if (x>w) w = x; y+=font[0]._height; }
+        if (is_empty()) assign(x0 + w,y0 + y,1,is_native_font?1:font[0]._spectrum,(T)0);
+      }
+
+      // Draw font characters on image.
+      x = x0; y = y0;
+      for (unsigned int i = 0; i<text_length; ++i) {
+        ch = (unsigned char)text[i];
+        switch (ch) {
+        case '\n' :
+          if (font._width>10) y+=font[10]._height; else y+=font[0]._height;
+          x = x0;
+          break;
+        case '\t' :
+        case ' ' : {
+          const unsigned int
+            lw = (ch=='\t'?4:1)*font[font._width>32?32:0]._width,
+            lh = font[font._width>32?32:0]._height;
+          if (background_color) draw_rectangle(x,y,x + lw - 1,y + lh - 1,background_color,opacity);
+          x+=lw;
+        } break;
+        default : if (ch<font._width) {
+            if (font[ch]) {
+              CImg<T> letter = font[ch];
+              const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
+              const int posx = x + left_paddings[i] + padding_x;
+
+              for (unsigned int c = 0; c<_spectrum; c+=letter._spectrum) {
+                if (c) letter = font[ch];
+                const unsigned int cmin = std::min(_spectrum - c,letter._spectrum);
+                for (unsigned int d = 0; d<cmin; ++d)
+                  if (foreground_color[c + d]!=255)
+                    letter.get_shared_channel(d)*=foreground_color[c + d]/255.f;
+
+                if (mask) { // Letter with alpha
+                  if (background_color)
+                    for (unsigned int d = 0; d<cmin; ++d)
+                      draw_rectangle(x,y,0,c + d,posx + letter._width - 1,y + letter._height - 1,0,c + d,
+                                     background_color[c + d],opacity);
+                  draw_image(posx,y,0,c,letter,mask,opacity,255.f);
+                } else // Letter without alpha
+                  draw_image(posx,y,0,c,letter,opacity);
+              }
+              x = posx + letter._width;
+            }
+          }
+        }
+      }
+      return *this;
+    }
+
+    // [internal] Version used to display text in interactive viewers.
+    CImg<T>& __draw_text(const char *const text, unsigned int &font_size, const int is_down, ...) {
+      CImg<charT> tmp(2048);
+      std::va_list ap;
+      va_start(ap,is_down);
+      cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      CImg<ucharT> a_label, a_labelmask;
+      const unsigned char a_labelcolor = 255;
+      unsigned int ofs = font_size, fs = ofs;
+      do { // Determine best font size
+        a_label.assign().draw_text(0,0,"%s",&a_labelcolor,0,1,fs,tmp._data);
+        if (a_label._width<7*_width/10 && a_label._height>_height/20 && a_label._height<_height/5) {
+          font_size = fs; break;
+        } else if ((a_label._width>7*_width/10 || a_label._height>_height/5) && fs>13 && ofs>=fs) {
+          ofs = fs; fs = std::max(13U,(unsigned int)cimg::round(fs/1.25f));
+        } else if (a_label._width<3*_width/10 && a_label._height<_height/20 && fs<64 && ofs<=fs) {
+          ofs = fs; fs = std::min(64U,(unsigned int)cimg::round(fs*1.25f));
+        } else { font_size = fs; break; }
+      } while (true);
+      a_label.normalize(0,255);
+      a_label+=(255 - a_label.get_dilate(3)).normalize(0,80);
+      a_label.resize(-100,-100,1,3,1);
+      return draw_image(0,is_down?height() - a_label.height():0,a_label,0.85f);
+    }
+
+    //! Draw a 2D vector field.
+    /**
+       \param flow Image of 2D vectors used as input data.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param sampling Length (in pixels) between each arrow.
+       \param factor Length factor of each arrow (if <0, computed as a percentage of the maximum length).
+       \param is_arrow Tells if arrows must be drawn, instead of oriented segments.
+       \param pattern Used pattern to draw lines.
+       \note Clipping is supported.
+    **/
+    template<typename t1, typename t2>
+    CImg<T>& draw_quiver(const CImg<t1>& flow,
+                         const t2 *const color, const float opacity=1,
+                         const unsigned int sampling=25, const float factor=-20,
+                         const bool is_arrow=true, const unsigned int pattern=~0U) {
+      return draw_quiver(flow,CImg<t2>(color,_spectrum,1,1,1,true),opacity,sampling,factor,is_arrow,pattern);
+    }
+
+    //! Draw a 2D vector field, using a field of colors.
+    /**
+       \param flow Image of 2D vectors used as input data.
+       \param color Image of spectrum()-D vectors corresponding to the color of each arrow.
+       \param opacity Opacity of the drawing.
+       \param sampling Length (in pixels) between each arrow.
+       \param factor Length factor of each arrow (if <0, computed as a percentage of the maximum length).
+       \param is_arrow Tells if arrows must be drawn, instead of oriented segments.
+       \param pattern Used pattern to draw lines.
+       \note Clipping is supported.
+    **/
+    template<typename t1, typename t2>
+    CImg<T>& draw_quiver(const CImg<t1>& flow,
+                         const CImg<t2>& color, const float opacity=1,
+                         const unsigned int sampling=25, const float factor=-20,
+                         const bool is_arrow=true, const unsigned int pattern=~0U) {
+      if (is_empty()) return *this;
+      if (!flow || flow._spectrum!=2)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_quiver(): Invalid dimensions of specified flow (%u,%u,%u,%u,%p).",
+                                    cimg_instance,
+                                    flow._width,flow._height,flow._depth,flow._spectrum,flow._data);
+      if (sampling<=0)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_quiver(): Invalid sampling value %g "
+                                    "(should be >0)",
+                                    cimg_instance,
+                                    sampling);
+      const bool colorfield = (color._width==flow._width && color._height==flow._height &&
+                               color._depth==1 && color._spectrum==_spectrum);
+      if (is_overlapped(flow)) return draw_quiver(+flow,color,opacity,sampling,factor,is_arrow,pattern);
+      float vmax,fact;
+      if (factor<=0) {
+        float m, M = (float)flow.get_norm(2).max_min(m);
+        vmax = (float)std::max(cimg::abs(m),cimg::abs(M));
+        if (!vmax) vmax = 1;
+        fact = -factor;
+      } else { fact = factor; vmax = 1; }
+
+      for (unsigned int y = sampling/2; y<_height; y+=sampling)
+        for (unsigned int x = sampling/2; x<_width; x+=sampling) {
+          const unsigned int X = x*flow._width/_width, Y = y*flow._height/_height;
+          float u = (float)flow(X,Y,0,0)*fact/vmax, v = (float)flow(X,Y,0,1)*fact/vmax;
+          if (is_arrow) {
+            const int xx = (int)(x + u), yy = (int)(y + v);
+            if (colorfield) draw_arrow(x,y,xx,yy,color.get_vector_at(X,Y)._data,opacity,45,sampling/5.f,pattern);
+            else draw_arrow(x,y,xx,yy,color._data,opacity,45,sampling/5.f,pattern);
+          } else {
+            if (colorfield)
+              draw_line((int)(x - 0.5*u),(int)(y - 0.5*v),(int)(x + 0.5*u),(int)(y + 0.5*v),
+                        color.get_vector_at(X,Y)._data,opacity,pattern);
+            else draw_line((int)(x - 0.5*u),(int)(y - 0.5*v),(int)(x + 0.5*u),(int)(y + 0.5*v),
+                           color._data,opacity,pattern);
+          }
+        }
+      return *this;
+    }
+
+    //! Draw a labeled horizontal axis.
+    /**
+       \param values_x Values along the horizontal axis.
+       \param y Y-coordinate of the horizontal axis in the image instance.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param pattern Drawing pattern.
+       \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
+       \param allow_zero Enable/disable the drawing of label '0' if found.
+    **/
+    template<typename t, typename tc>
+    CImg<T>& draw_axis(const CImg<t>& values_x, const int y,
+                       const tc *const color, const float opacity=1,
+                       const unsigned int pattern=~0U, const unsigned int font_height=13,
+                       const bool allow_zero=true, const float round_x=0) {
+      if (is_empty()) return *this;
+      const int yt = (y + 3 + font_height)<_height?y + 3:y - 2 - (int)font_height;
+      const int siz = (int)values_x.size() - 1;
+      CImg<charT> txt(32);
+      CImg<T> a_label;
+      if (siz<=0) { // Degenerated case
+        draw_line(0,y,_width - 1,y,color,opacity,pattern);
+        if (!siz) {
+          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round((double)*values_x,round_x):(double)*values_x);
+          a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
+          const int
+            _xt = (width() - a_label.width())/2,
+            xt = _xt<3?3:_xt + a_label.width()>=width() - 2?width() - 3 - a_label.width():_xt;
+          draw_point(width()/2,y - 1,color,opacity).draw_point(width()/2,y + 1,color,opacity);
+          if (allow_zero || *txt!='0' || txt[1]!=0)
+            draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
+        }
+      } else { // Regular case
+        if (values_x[0]<values_x[siz]) draw_arrow(0,y,_width - 1,y,color,opacity,30,5,pattern);
+        else draw_arrow(_width - 1,y,0,y,color,opacity,30,5,pattern);
+        cimg_foroff(values_x,x) {
+          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round((double)values_x(x),round_x):(double)values_x(x));
+          a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
+          const int
+            xi = (int)(x*(_width - 1)/siz),
+            _xt = xi - a_label.width()/2,
+            xt = _xt<3?3:_xt + a_label.width()>=width() - 2?width() - 3 - a_label.width():_xt;
+          draw_point(xi,y - 1,color,opacity).draw_point(xi,y + 1,color,opacity);
+          if (allow_zero || *txt!='0' || txt[1]!=0)
+            draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
+        }
+      }
+      return *this;
+    }
+
+    //! Draw a labeled vertical axis.
+    /**
+       \param x X-coordinate of the vertical axis in the image instance.
+       \param values_y Values along the Y-axis.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param pattern Drawing pattern.
+       \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
+       \param allow_zero Enable/disable the drawing of label '0' if found.
+    **/
+    template<typename t, typename tc>
+    CImg<T>& draw_axis(const int x, const CImg<t>& values_y,
+                       const tc *const color, const float opacity=1,
+                       const unsigned int pattern=~0U, const unsigned int font_height=13,
+                       const bool allow_zero=true, const float round_y=0) {
+      if (is_empty()) return *this;
+      int siz = (int)values_y.size() - 1;
+      CImg<charT> txt(32);
+      CImg<T> a_label;
+      if (siz<=0) { // Degenerated case
+        draw_line(x,0,x,_height - 1,color,opacity,pattern);
+        if (!siz) {
+          cimg_snprintf(txt,txt._width,"%g",round_y?cimg::round((double)*values_y,round_y):(double)*values_y);
+          a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
+          const int
+            _yt = (height() - a_label.height())/2,
+            yt = _yt<0?0:_yt + a_label.height()>=height()?height() - 1 - a_label.height():_yt,
+            _xt = x - 2 - a_label.width(),
+            xt = _xt>=0?_xt:x + 3;
+          draw_point(x - 1,height()/2,color,opacity).draw_point(x + 1,height()/2,color,opacity);
+          if (allow_zero || *txt!='0' || txt[1]!=0)
+            draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
+        }
+      } else { // Regular case
+        if (values_y[0]<values_y[siz]) draw_arrow(x,0,x,_height - 1,color,opacity,30,5,pattern);
+        else draw_arrow(x,_height - 1,x,0,color,opacity,30,5,pattern);
+        cimg_foroff(values_y,y) {
+          cimg_snprintf(txt,txt._width,"%g",round_y?cimg::round((double)values_y(y),round_y):(double)values_y(y));
+          a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
+          const int
+            yi = (int)(y*(_height - 1)/siz),
+            _yt = yi - a_label.height()/2,
+            yt = _yt<0?0:_yt + a_label.height()>=height()?height() - 1 - a_label.height():_yt,
+            _xt = x - 2 - a_label.width(),
+            xt = _xt>=0?_xt:x + 3;
+          draw_point(x - 1,yi,color,opacity).draw_point(x + 1,yi,color,opacity);
+          if (allow_zero || *txt!='0' || txt[1]!=0)
+            draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
+        }
+      }
+      return *this;
+    }
+
+    //! Draw labeled horizontal and vertical axes.
+    /**
+       \param values_x Values along the X-axis.
+       \param values_y Values along the Y-axis.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param pattern_x Drawing pattern for the X-axis.
+       \param pattern_y Drawing pattern for the Y-axis.
+       \param font_height Height of the labels (exact match for 13,23,53,103, interpolated otherwise).
+       \param allow_zero Enable/disable the drawing of label '0' if found.
+    **/
+    template<typename tx, typename ty, typename tc>
+    CImg<T>& draw_axes(const CImg<tx>& values_x, const CImg<ty>& values_y,
+                       const tc *const color, const float opacity=1,
+                       const unsigned int pattern_x=~0U, const unsigned int pattern_y=~0U,
+                       const unsigned int font_height=13, const bool allow_zero=true,
+                       const float round_x=0, const float round_y=0) {
+      if (is_empty()) return *this;
+      const CImg<tx> nvalues_x(values_x._data,values_x.size(),1,1,1,true);
+      const int sizx = (int)values_x.size() - 1, wm1 = width() - 1;
+      if (sizx>=0) {
+        float ox = (float)*nvalues_x;
+        for (unsigned int x = sizx?1U:0U; x<_width; ++x) {
+          const float nx = (float)nvalues_x._linear_atX((float)x*sizx/wm1);
+          if (nx*ox<=0) {
+            draw_axis(nx==0?x:x - 1,values_y,color,opacity,pattern_y,font_height,allow_zero,round_y);
+            break;
+          }
+          ox = nx;
+        }
+      }
+      const CImg<ty> nvalues_y(values_y._data,values_y.size(),1,1,1,true);
+      const int sizy = (int)values_y.size() - 1, hm1 = height() - 1;
+      if (sizy>0) {
+        float oy = (float)nvalues_y[0];
+        for (unsigned int y = sizy?1U:0U; y<_height; ++y) {
+          const float ny = (float)nvalues_y._linear_atX((float)y*sizy/hm1);
+          if (ny*oy<=0) {
+            draw_axis(values_x,ny==0?y:y - 1,color,opacity,pattern_x,font_height,allow_zero,round_x);
+            break;
+          }
+          oy = ny;
+        }
+      }
+      return *this;
+    }
+
+    //! Draw labeled horizontal and vertical axes \overloading.
+    template<typename tc>
+    CImg<T>& draw_axes(const float x0, const float x1, const float y0, const float y1,
+                       const tc *const color, const float opacity=1,
+                       const int subdivisionx=-60, const int subdivisiony=-60,
+                       const float precisionx=0, const float precisiony=0,
+                       const unsigned int pattern_x=~0U, const unsigned int pattern_y=~0U,
+                       const unsigned int font_height=13) {
+      if (is_empty()) return *this;
+      const bool allow_zero = (x0*x1>0) || (y0*y1>0);
+      const float
+        dx = cimg::abs(x1 - x0), dy = cimg::abs(y1 - y0),
+        px = dx<=0?1:precisionx==0?(float)std::pow(10.,(int)std::log10(dx) - 2.):precisionx,
+        py = dy<=0?1:precisiony==0?(float)std::pow(10.,(int)std::log10(dy) - 2.):precisiony;
+      if (x0!=x1 && y0!=y1)
+        draw_axes(CImg<floatT>::sequence(subdivisionx>0?subdivisionx:1-width()/subdivisionx,x0,x1),
+                  CImg<floatT>::sequence(subdivisiony>0?subdivisiony:1-height()/subdivisiony,y0,y1),
+                  color,opacity,pattern_x,pattern_y,font_height,allow_zero,px,py);
+      else if (x0==x1 && y0!=y1)
+        draw_axis((int)x0,CImg<floatT>::sequence(subdivisiony>0?subdivisiony:1-height()/subdivisiony,y0,y1),
+                  color,opacity,pattern_y,font_height,py);
+      else if (x0!=x1 && y0==y1)
+        draw_axis(CImg<floatT>::sequence(subdivisionx>0?subdivisionx:1-width()/subdivisionx,x0,x1),(int)y0,
+                  color,opacity,pattern_x,font_height,px);
+      return *this;
+    }
+
+    //! Draw 2D grid.
+    /**
+       \param values_x X-coordinates of the vertical lines.
+       \param values_y Y-coordinates of the horizontal lines.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param pattern_x Drawing pattern for vertical lines.
+       \param pattern_y Drawing pattern for horizontal lines.
+    **/
+    template<typename tx, typename ty, typename tc>
+    CImg<T>& draw_grid(const CImg<tx>& values_x, const CImg<ty>& values_y,
+                       const tc *const color, const float opacity=1,
+                       const unsigned int pattern_x=~0U, const unsigned int pattern_y=~0U) {
+      if (is_empty()) return *this;
+      if (values_x) cimg_foroff(values_x,x) {
+          const int xi = (int)values_x[x];
+          if (xi>=0 && xi<width()) draw_line(xi,0,xi,_height - 1,color,opacity,pattern_x);
+        }
+      if (values_y) cimg_foroff(values_y,y) {
+          const int yi = (int)values_y[y];
+          if (yi>=0 && yi<height()) draw_line(0,yi,_width - 1,yi,color,opacity,pattern_y);
+        }
+      return *this;
+    }
+
+    //! Draw 2D grid \simplification.
+    template<typename tc>
+    CImg<T>& draw_grid(const float delta_x,  const float delta_y,
+                       const float offsetx, const float offsety,
+                       const bool invertx, const bool inverty,
+                       const tc *const color, const float opacity=1,
+                       const unsigned int pattern_x=~0U, const unsigned int pattern_y=~0U) {
+      if (is_empty()) return *this;
+      CImg<uintT> seqx, seqy;
+      if (delta_x!=0) {
+        const float dx = delta_x>0?delta_x:_width*-delta_x/100;
+        const unsigned int nx = (unsigned int)(_width/dx);
+        seqx = CImg<uintT>::sequence(1 + nx,0,(unsigned int)(dx*nx));
+        if (offsetx) cimg_foroff(seqx,x) seqx(x) = (unsigned int)cimg::mod(seqx(x) + offsetx,(float)_width);
+        if (invertx) cimg_foroff(seqx,x) seqx(x) = _width - 1 - seqx(x);
+      }
+      if (delta_y!=0) {
+        const float dy = delta_y>0?delta_y:_height*-delta_y/100;
+        const unsigned int ny = (unsigned int)(_height/dy);
+        seqy = CImg<uintT>::sequence(1 + ny,0,(unsigned int)(dy*ny));
+        if (offsety) cimg_foroff(seqy,y) seqy(y) = (unsigned int)cimg::mod(seqy(y) + offsety,(float)_height);
+        if (inverty) cimg_foroff(seqy,y) seqy(y) = _height - 1 - seqy(y);
+     }
+      return draw_grid(seqx,seqy,color,opacity,pattern_x,pattern_y);
+    }
+
+    //! Draw 1D graph.
+    /**
+       \param data Image containing the graph values I = f(x).
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+
+       \param plot_type Define the type of the plot:
+                      - 0 = No plot.
+                      - 1 = Plot using segments.
+                      - 2 = Plot using cubic splines.
+                      - 3 = Plot with bars.
+       \param vertex_type Define the type of points:
+                      - 0 = No points.
+                      - 1 = Point.
+                      - 2 = Straight cross.
+                      - 3 = Diagonal cross.
+                      - 4 = Filled circle.
+                      - 5 = Outlined circle.
+                      - 6 = Square.
+                      - 7 = Diamond.
+       \param ymin Lower bound of the y-range.
+       \param ymax Upper bound of the y-range.
+       \param pattern Drawing pattern.
+       \note
+         - if \c ymin==ymax==0, the y-range is computed automatically from the input samples.
+    **/
+    template<typename t, typename tc>
+    CImg<T>& draw_graph(const CImg<t>& data,
+                        const tc *const color, const float opacity=1,
+                        const unsigned int plot_type=1, const int vertex_type=1,
+                        const double ymin=0, const double ymax=0, const unsigned int pattern=~0U) {
+      if (is_empty() || _height<=1) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_graph(): Specified color is (null).",
+                                    cimg_instance);
+
+      // Create shaded colors for displaying bar plots.
+      CImg<tc> color1, color2;
+      if (plot_type==3) {
+        color1.assign(_spectrum); color2.assign(_spectrum);
+        cimg_forC(*this,c) {
+          color1[c] = (tc)std::min((float)cimg::type<tc>::max(),(float)color[c]*1.2f);
+          color2[c] = (tc)(color[c]*0.4f);
+        }
+      }
+
+      // Compute min/max and normalization factors.
+      const ulongT
+        siz = data.size(),
+        _siz1 = siz - (plot_type!=3),
+        siz1 = _siz1?_siz1:1;
+      const unsigned int
+        _width1 = _width - (plot_type!=3),
+        width1 = _width1?_width1:1;
+      double m = ymin, M = ymax;
+      if (ymin==ymax) m = (double)data.max_min(M);
+      if (m==M) { --m; ++M; }
+      const float ca = (float)(M-m)/(_height - 1);
+      bool init_hatch = true;
+
+      // Draw graph edges.
+      switch (plot_type%4) {
+      case 1 : { // Segments
+        int oX = 0, oY = (int)cimg::round((data[0] - m)/ca);
+        if (siz==1) {
+          const int Y = (int)cimg::round((*data - m)/ca);
+          draw_line(0,Y,width() - 1,Y,color,opacity,pattern);
+        } else {
+          const float fx = (float)_width/siz1;
+          for (ulongT off = 1; off<siz; ++off) {
+            const int
+              X = (int)cimg::round(off*fx) - 1,
+              Y = (int)cimg::round((data[off]-m)/ca);
+            draw_line(oX,oY,X,Y,color,opacity,pattern,init_hatch);
+            oX = X; oY = Y;
+            init_hatch = false;
+          }
+        }
+      } break;
+      case 2 : { // Spline
+        const CImg<t> ndata(data._data,siz,1,1,1,true);
+        int oY = (int)cimg::round((data[0] - m)/ca);
+        cimg_forX(*this,x) {
+          const int Y = (int)cimg::round((ndata._cubic_atX((float)x*siz1/width1)-m)/ca);
+          if (x>0) draw_line(x,oY,x + 1,Y,color,opacity,pattern,init_hatch);
+          init_hatch = false;
+          oY = Y;
+        }
+      } break;
+      case 3 : { // Bars
+        const int Y0 = (int)cimg::round(-m/ca);
+        const float fx = (float)_width/siz1;
+        int oX = 0;
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round((off + 1)*fx) - 1,
+            Y = (int)cimg::round((data[off] - m)/ca);
+          draw_rectangle(oX,Y0,X,Y,color,opacity).
+            draw_line(oX,Y,oX,Y0,color2.data(),opacity).
+            draw_line(oX,Y0,X,Y0,Y<=Y0?color2.data():color1.data(),opacity).
+            draw_line(X,Y,X,Y0,color1.data(),opacity).
+            draw_line(oX,Y,X,Y,Y<=Y0?color1.data():color2.data(),opacity);
+          oX = X + 1;
+        }
+      } break;
+      default : break; // No edges
+      }
+
+      // Draw graph points.
+      const unsigned int wb2 = plot_type==3?_width1/(2*siz):0;
+      const float fx = (float)_width1/siz1;
+      switch (vertex_type%8) {
+      case 1 : { // Point
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
+          draw_point(X,Y,color,opacity);
+        }
+      } break;
+      case 2 : { // Straight Cross
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
+          draw_line(X - 3,Y,X + 3,Y,color,opacity).draw_line(X,Y - 3,X,Y + 3,color,opacity);
+        }
+      } break;
+      case 3 : { // Diagonal Cross
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
+          draw_line(X - 3,Y - 3,X + 3,Y + 3,color,opacity).draw_line(X - 3,Y + 3,X + 3,Y - 3,color,opacity);
+        }
+      } break;
+      case 4 : { // Filled Circle
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
+          draw_circle(X,Y,3,color,opacity);
+        }
+      } break;
+      case 5 : { // Outlined circle
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
+          draw_circle(X,Y,3,color,opacity,~0U);
+        }
+      } break;
+      case 6 : { // Square
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
+          draw_rectangle(X - 3,Y - 3,X + 3,Y + 3,color,opacity,~0U);
+        }
+      } break;
+      case 7 : { // Diamond
+        cimg_foroff(data,off) {
+          const int
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
+          draw_line(X,Y - 4,X + 4,Y,color,opacity).
+            draw_line(X + 4,Y,X,Y + 4,color,opacity).
+            draw_line(X,Y + 4,X - 4,Y,color,opacity).
+            draw_line(X - 4,Y,X,Y - 4,color,opacity);
+        }
+      } break;
+      default : break; // No points
+      }
+      return *this;
+    }
+
+    bool _draw_fill(const int x, const int y, const int z,
+                    const CImg<T>& ref, const float tolerance2) const {
+      const T *ptr1 = data(x,y,z), *ptr2 = ref._data;
+      const ulongT off = _width*_height*_depth;
+      float diff = 0;
+      cimg_forC(*this,c) { diff += cimg::sqr(*ptr1 - *(ptr2++)); ptr1+=off; }
+      return diff<=tolerance2;
+    }
+
+    //! Draw filled 3D region with the flood fill algorithm.
+    /**
+       \param x0 X-coordinate of the starting point of the region to fill.
+       \param y0 Y-coordinate of the starting point of the region to fill.
+       \param z0 Z-coordinate of the starting point of the region to fill.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param[out] region Image that will contain the mask of the filled region mask, as an output.
+       \param tolerance Tolerance concerning neighborhood values.
+       \param opacity Opacity of the drawing.
+       \param is_high_connectivity Tells if 8-connexity must be used.
+       \return \c region is initialized with the binary mask of the filled region.
+    **/
+    template<typename tc, typename t>
+    CImg<T>& draw_fill(const int x0, const int y0, const int z0,
+                        const tc *const color, const float opacity,
+                        CImg<t> &region,
+                        const float tolerance = 0,
+                        const bool is_high_connectivity = false) {
+#define _draw_fill_push(x,y,z) if (N>=stack._width) stack.resize(2*N + 1,1,1,3,0); \
+                               stack[N] = x; stack(N,1) = y; stack(N++,2) = z
+#define _draw_fill_pop(x,y,z) x = stack[--N]; y = stack(N,1); z = stack(N,2)
+#define _draw_fill_is_inside(x,y,z) !_region(x,y,z) && _draw_fill(x,y,z,ref,tolerance2)
+
+      if (!containsXYZC(x0,y0,z0,0)) return *this;
+      const float nopacity = cimg::abs((float)opacity), copacity = 1 - std::max((float)opacity,0.f);
+      const float tolerance2 = cimg::sqr(tolerance);
+      const CImg<T> ref = get_vector_at(x0,y0,z0);
+      CImg<uintT> stack(256,1,1,3);
+      CImg<ucharT> _region(_width,_height,_depth,1,0);
+      unsigned int N = 0;
+      int x, y, z;
+
+      _draw_fill_push(x0,y0,z0);
+      while (N>0) {
+        _draw_fill_pop(x,y,z);
+        if (!_region(x,y,z)) {
+          const int yp = y - 1, yn = y + 1, zp = z - 1, zn = z + 1;
+          int xl = x, xr = x;
+
+          // Using these booleans reduces the number of pushes drastically.
+          bool is_yp = false, is_yn = false, is_zp = false, is_zn = false;
+          for (int step = -1; step<2; step+=2) {
+            while (x>=0 && x<width() && _draw_fill_is_inside(x,y,z)) {
+              if (yp>=0 && _draw_fill_is_inside(x,yp,z)) {
+                if (!is_yp) { _draw_fill_push(x,yp,z); is_yp = true; }
+              } else is_yp = false;
+              if (yn<height() && _draw_fill_is_inside(x,yn,z)) {
+                if (!is_yn) { _draw_fill_push(x,yn,z); is_yn = true; }
+              } else is_yn = false;
+              if (depth()>1) {
+                if (zp>=0 && _draw_fill_is_inside(x,y,zp)) {
+                  if (!is_zp) { _draw_fill_push(x,y,zp); is_zp = true; }
+                } else is_zp = false;
+                if (zn<depth() && _draw_fill_is_inside(x,y,zn)) {
+                  if (!is_zn) { _draw_fill_push(x,y,zn); is_zn = true; }
+                } else is_zn = false;
+              }
+              if (is_high_connectivity) {
+                const int xp = x - 1, xn = x + 1;
+                if (yp>=0 && !is_yp) {
+                  if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) {
+                    _draw_fill_push(xp,yp,z); if (step<0) is_yp = true;
+                  }
+                  if (xn<width() && _draw_fill_is_inside(xn,yp,z)) {
+                    _draw_fill_push(xn,yp,z); if (step>0) is_yp = true;
+                  }
+                }
+                if (yn<height() && !is_yn) {
+                  if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) {
+                    _draw_fill_push(xp,yn,z); if (step<0) is_yn = true;
+                  }
+                  if (xn<width() && _draw_fill_is_inside(xn,yn,z)) {
+                    _draw_fill_push(xn,yn,z); if (step>0) is_yn = true;
+                  }
+                }
+                if (depth()>1) {
+                  if (zp>=0 && !is_zp) {
+                    if (xp>=0 && _draw_fill_is_inside(xp,y,zp)) {
+                      _draw_fill_push(xp,y,zp); if (step<0) is_zp = true;
+                    }
+                    if (xn<width() && _draw_fill_is_inside(xn,y,zp)) {
+                      _draw_fill_push(xn,y,zp); if (step>0) is_zp = true;
+                    }
+
+                    if (yp>=0 && !is_yp) {
+                      if (_draw_fill_is_inside(x,yp,zp)) { _draw_fill_push(x,yp,zp); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zp)) { _draw_fill_push(xp,yp,zp); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yp,zp)) { _draw_fill_push(xn,yp,zp); }
+                    }
+                    if (yn<height() && !is_yn) {
+                      if (_draw_fill_is_inside(x,yn,zp)) { _draw_fill_push(x,yn,zp); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zp)) { _draw_fill_push(xp,yn,zp); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yn,zp)) { _draw_fill_push(xn,yn,zp); }
+                    }
+                  }
+
+                  if (zn<depth() && !is_zn) {
+                    if (xp>=0 && _draw_fill_is_inside(xp,y,zn)) {
+                      _draw_fill_push(xp,y,zn); if (step<0) is_zn = true;
+                    }
+                    if (xn<width() && _draw_fill_is_inside(xn,y,zn)) {
+                      _draw_fill_push(xn,y,zn); if (step>0) is_zn = true;
+                    }
+
+                    if (yp>=0 && !is_yp) {
+                      if (_draw_fill_is_inside(x,yp,zn)) { _draw_fill_push(x,yp,zn); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zn)) { _draw_fill_push(xp,yp,zn); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yp,zn)) { _draw_fill_push(xn,yp,zn); }
+                    }
+                    if (yn<height() && !is_yn) {
+                      if (_draw_fill_is_inside(x,yn,zn)) { _draw_fill_push(x,yn,zn); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zn)) { _draw_fill_push(xp,yn,zn); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yn,zn)) { _draw_fill_push(xn,yn,zn); }
+                    }
+                  }
+                }
+              }
+              x+=step;
+            }
+            if (step<0) { xl = ++x; x = xr + 1; is_yp = is_yn = is_zp = is_zn = false; }
+            else xr = --x;
+          }
+          std::memset(_region.data(xl,y,z),1,xr - xl + 1);
+          if (opacity==1) {
+            if (sizeof(T)!=1) cimg_forC(*this,c) {
+                const T val = (T)color[c];
+                T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;
+              }
+            else {
+              const int dx = xr - xl + 1;
+              cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
+            }
+          } else cimg_forC(*this,c) {
+              const T val = (T)(color[c]*nopacity);
+              T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) { *ptri = (T)(val + *ptri*copacity); ++ptri; }
+            }
+        }
+      }
+      _region.move_to(region);
+      return *this;
+    }
+
+    //! Draw filled 3D region with the flood fill algorithm \simplification.
+    template<typename tc>
+    CImg<T>& draw_fill(const int x0, const int y0, const int z0,
+                       const tc *const color, const float opacity=1,
+                       const float tolerance=0, const bool is_high_connexity=false) {
+      CImg<ucharT> tmp;
+      return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connexity);
+    }
+
+    //! Draw filled 2D region with the flood fill algorithm \simplification.
+    template<typename tc>
+    CImg<T>& draw_fill(const int x0, const int y0,
+                       const tc *const color, const float opacity=1,
+                       const float tolerance=0, const bool is_high_connexity=false) {
+      CImg<ucharT> tmp;
+      return draw_fill(x0,y0,0,color,opacity,tmp,tolerance,is_high_connexity);
+    }
+
+    //! Draw a random plasma texture.
+    /**
+       \param alpha Alpha-parameter.
+       \param beta Beta-parameter.
+       \param scale Scale-parameter.
+       \note Use the mid-point algorithm to render.
+    **/
+    CImg<T>& draw_plasma(const float alpha=1, const float beta=0, const unsigned int scale=8) {
+      if (is_empty()) return *this;
+      const int
+        w0 = width(), h0 = height(),
+        delta = 1<<std::min(scale,12U),
+        w = cimg::round(w0,delta,1),
+        h = cimg::round(h0,delta,1);
+      cimg_uint64 rng = (cimg::_rand(),cimg::rng());
+      CImg<T> canvas(w,h,depth(),spectrum());
+
+      cimg_forZC(*this,z,c) {
+        CImg<T> ref = canvas.get_shared_slice(z,c);
+
+        // Init step.
+        float r = alpha*delta + beta;
+        for (int yt = 0; yt<h; yt+=delta)
+          for (int xt = 0; xt<w; xt+=delta) {
+            const Tfloat val = r*cimg::rand(-1,1,&rng);
 
             ref(xt,yt) = cimg::type<T>::cut(val);
           }

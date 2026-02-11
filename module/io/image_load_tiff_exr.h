@@ -569,10 +569,4 @@
       return *this;
     }
 
-    //! Load image from a .cimg[z] file.
-    /**
-      \param filename Filename, as a C-string.
-      \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param align Appending alignment.
-    **/
 #endif

@@ -3,7 +3,8 @@
 
     //---------------------------------------
     //
-    //! \name Window Manipulation
+    //! 
+ame Window Manipulation
     //@{
     //---------------------------------------
 
@@ -12,7 +13,8 @@
     //! Display image on associated window.
     /**
        \param img Input image to display.
-       \note This method returns immediately.
+       
+ote This method returns immediately.
     **/
     template<typename T>
     CImgDisplay& display(const CImg<T>& img) {
@@ -27,7 +29,8 @@
        \param axis Axis used to append the images along, for the visualization (can be \c x, \c y, \c z or \c c).
        \param align Relative position of aligned images when displaying lists with images of different sizes
        (\c 0 for upper-left, \c 0.5 for centering and \c 1 for lower-right).
-       \note This method returns immediately.
+       
+ote This method returns immediately.
     **/
     template<typename T>
     CImgDisplay& display(const CImgList<T>& list, const char axis='x', const float align=0) {
@@ -52,7 +55,8 @@
 
     //! Show (closed) associated window on the screen.
     /**
-       \note
+       
+ote
        - Force the associated window of a display to be visible on the screen, even if it has been closed before.
        - Using show() on a visible display does nothing.
     **/
@@ -62,7 +66,8 @@
 
     //! Close (visible) associated window and make it disappear from the screen.
     /**
-       \note
+       
+ote
        - A closed display only means the associated window is not visible anymore. This does not mean the display has
        been destroyed.
        Use show() to make the associated window reappear.
@@ -76,7 +81,8 @@
     /**
        \param pos_x X-coordinate of the new window location.
        \param pos_y Y-coordinate of the new window location.
-       \note Depending on the window manager behavior, this method may not succeed (no exceptions are thrown
+       
+ote Depending on the window manager behavior, this method may not succeed (no exceptions are thrown
        nevertheless).
     **/
     CImgDisplay& move(const int pos_x, const int pos_y) {
@@ -88,7 +94,8 @@
     //! Resize display to the size of the associated window.
     /**
        \param force_redraw Tells if the previous window content must be updated and refreshed as well.
-       \note
+       
+ote
        - Calling this method ensures that width() and window_width() become equal, as well as height() and
        window_height().
        - The associated window is also resized to specified dimensions.
@@ -105,7 +112,8 @@
        \param width Requested display width.
        \param height Requested display height.
        \param force_redraw Tells if the previous window content must be updated and refreshed as well.
-       \note The associated window is also resized to specified dimensions.
+       
+ote The associated window is also resized to specified dimensions.
     **/
     CImgDisplay& resize(const int width, const int height, const bool force_redraw=true) {
       return assign(width,height,0,3,force_redraw);
@@ -117,7 +125,8 @@
     /**
        \param img Input image to take size from.
        \param force_redraw Tells if the previous window content must be resized and updated as well.
-       \note
+       
+ote
        - Calling this method ensures that width() and <tt>img.width()</tt> become equal, as well as height() and
        <tt>img.height()</tt>.
        - The associated window is also resized to specified dimensions.
@@ -131,7 +140,8 @@
     /**
        \param disp Input display to take size from.
        \param force_redraw Tells if the previous window content must be resized and updated as well.
-       \note
+       
+ote
        - Calling this method ensures that width() and <tt>disp.width()</tt> become equal, as well as height() and
        <tt>disp.height()</tt>.
        - The associated window is also resized to specified dimensions.
@@ -213,7 +223,8 @@
     /**
        \param is_fullscreen Tells is the fullscreen mode must be activated or not.
        \param force_redraw Tells if the previous window content must be displayed as well.
-       \note
+       
+ote
        - When the fullscreen mode is enabled, the associated window fills the entire screen but the size of the
        current display is not modified.
        - The screen resolution may be switched to fit the associated window size and ensure it appears the largest
@@ -231,7 +242,8 @@
     //! Toggle fullscreen mode.
     /**
        \param force_redraw Tells if the previous window content must be displayed as well.
-       \note Enable fullscreen mode if it was not enabled, and disable it otherwise.
+       
+ote Enable fullscreen mode if it was not enabled, and disable it otherwise.
     **/
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
       return assign(_width,_height,0,3,force_redraw);
@@ -239,7 +251,8 @@
 
     //! Show mouse pointer.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       
+ote Depending on the window manager behavior, this method may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& show_mouse() {
@@ -248,7 +261,8 @@
 
     //! Hide mouse pointer.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       
+ote Depending on the window manager behavior, this method may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& hide_mouse() {
@@ -257,7 +271,8 @@
 
     //! Move mouse pointer to a specified location.
     /**
-       \note Depending on the window manager behavior, this method may not succeed
+       
+ote Depending on the window manager behavior, this method may not succeed
        (no exceptions are thrown nevertheless).
     **/
     CImgDisplay& set_mouse(const int pos_x, const int pos_y) {
@@ -268,7 +283,8 @@
 
     //! Simulate a mouse button release event.
     /**
-       \note All mouse buttons are considered released at the same time.
+       
+ote All mouse buttons are considered released at the same time.
     **/
     CImgDisplay& set_button() {
       _button = 0;
@@ -302,7 +318,8 @@
 
     //! Flush all mouse wheel events.
     /**
-       \note Make wheel() to return \c 0, if called afterwards.
+       
+ote Make wheel() to return \c 0, if called afterwards.
     **/
     CImgDisplay& set_wheel() {
       _wheel = 0;
@@ -318,7 +335,8 @@
     //! Simulate a wheel event.
     /**
        \param amplitude Amplitude of the wheel scrolling to simulate.
-       \note Make wheel() to return \c amplitude, if called afterwards.
+       
+ote Make wheel() to return \c amplitude, if called afterwards.
     **/
     CImgDisplay& set_wheel(const int amplitude) {
       _wheel+=amplitude;
@@ -335,7 +353,8 @@
 
     //! Flush all key events.
     /**
-       \note Make key() to return \c 0, if called afterwards.
+       
+ote Make key() to return \c 0, if called afterwards.
     **/
     CImgDisplay& set_key() {
       std::memset((void*)_keys,0,128*sizeof(unsigned int));
@@ -365,7 +384,8 @@
     /**
        \param keycode Keycode of the associated key.
        \param is_pressed Tells if the key is considered as pressed or released.
-       \note Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
+       
+ote Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
     CImgDisplay& set_key(const unsigned int keycode, const bool is_pressed=true) {
@@ -425,7 +445,8 @@
 
     //! Flush all display events.
     /**
-       \note Remove all passed events from the current display.
+       
+ote Remove all passed events from the current display.
     **/
     CImgDisplay& flush() {
       set_key().set_button().set_wheel();
@@ -544,7 +565,8 @@
     //! Wait for a given number of milliseconds since the last call to wait().
     /**
        \param milliseconds Number of milliseconds to wait for.
-       \note Similar to cimg::wait().
+       
+ote Similar to cimg::wait().
     **/
     CImgDisplay& wait(const unsigned int milliseconds) {
       cimg::wait(milliseconds,&_timer);
@@ -554,7 +576,8 @@
     //! Render image into internal display buffer.
     /**
        \param img Input image data to render.
-       \note
+       
+ote
        - Convert image data representation into the internal display buffer (architecture-dependent structure).
        - The content of the associated window is not modified, until paint() is called.
        - Should not be used for common CImgDisplay uses, since display() is more useful.
@@ -566,7 +589,8 @@
 
     //! Paint internal display buffer on associated window.
     /**
-       \note
+       
+ote
        - Update the content of the associated window with the internal display buffer, e.g. after a render() call.
        - Should not be used for common CImgDisplay uses, since display() is more useful.
     **/
@@ -1969,4 +1993,6 @@
     }
 
     // GDI32-based implementation.
+#endif
+
 #endif

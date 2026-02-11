@@ -1,5 +1,5 @@
-#ifndef CIMG_MODULE_IMAGE_BODY_DRAW_BASE_H
-#define CIMG_MODULE_IMAGE_BODY_DRAW_BASE_H
+#ifndef CIMG_MODULE_IMAGE_BODY_DRAW_1_H
+#define CIMG_MODULE_IMAGE_BODY_DRAW_1_H
 
     //---------------------------
     //
@@ -2001,4 +2001,904 @@
         return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,bs0,bs1,bs2,opacity);
 
       float iz0 = 1/z0, iz1 = 1/z1, iz2 = 1/z2;
+
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,bs0,bs1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,bs0,bs2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,bs1,bs2);
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
+
+      const int w1 = width() - 1, h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
+      const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
+        txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
+        tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
+        dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
+        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
+        dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
+      const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
+
+      cimg_init_scanline(opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
+        float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
+          izM = iz0 + diz02*yy0/dy02,
+          txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*yy1/dy12),
+          txzM = txz0 + dtxz02*yy0/dy02,
+          tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*yy1/dy12),
+          tyzM = tyz0 + dtyz02*yy0/dy02,
+          bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
+          bsM = bs0 + dbs02*yy0/dy02;
+        if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM,bsm,bsM);
+        if (xM>=0 && xm<=w1) {
+          const int
+            cxm = (int)cimg::cut(xm,(longT)0,(longT)w1),
+            cxM = (int)cimg::cut(xM,(longT)0,(longT)w1);
+          T *ptrd = data(cxm,y);
+          tz *ptrz = zbuffer.data(cxm,y);
+          const longT dxmM = std::max((longT)1,xM - xm);
+          const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dbsmM = bsM - bsm;
+
+          for (int x = cxm; x<=cxM; ++x) {
+            const longT xxm = (longT)x - xm;
+            const float iz = izm + dizmM*xxm/dxmM;
+            if (iz>=*ptrz) {
+              *ptrz = (tz)iz;
+              const float
+                txz = txzm + dtxzmM*xxm/dxmM,
+                tyz = tyzm + dtyzmM*xxm/dxmM,
+                cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0.f,2.f);
+              const int
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz);
+              const tc *const color = &texture._atXY(tx,ty);
+              cimg_forC(*this,c) {
+                const tc col = color[c*twhd];
+                const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
+                ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+              }
+            }
+            ++ptrd; ++ptrz;
+          }
+        }
+      }
+      return *this;
+    }
+
+    //! Draw a textured Phong-shaded 2D triangle.
+    /**
+       \param x0 X-coordinate of the first vertex in the image instance.
+       \param y0 Y-coordinate of the first vertex in the image instance.
+       \param x1 X-coordinate of the second vertex in the image instance.
+       \param y1 Y-coordinate of the second vertex in the image instance.
+       \param x2 X-coordinate of the third vertex in the image instance.
+       \param y2 Y-coordinate of the third vertex in the image instance.
+       \param texture Texture image used to fill the triangle.
+       \param tx0 X-coordinate of the first vertex in the texture image.
+       \param ty0 Y-coordinate of the first vertex in the texture image.
+       \param tx1 X-coordinate of the second vertex in the texture image.
+       \param ty1 Y-coordinate of the second vertex in the texture image.
+       \param tx2 X-coordinate of the third vertex in the texture image.
+       \param ty2 Y-coordinate of the third vertex in the texture image.
+       \param light Light image.
+       \param lx0 X-coordinate of the first vertex in the light image.
+       \param ly0 Y-coordinate of the first vertex in the light image.
+       \param lx1 X-coordinate of the second vertex in the light image.
+       \param ly1 Y-coordinate of the second vertex in the light image.
+       \param lx2 X-coordinate of the third vertex in the light image.
+       \param ly2 Y-coordinate of the third vertex in the light image.
+       \param opacity Drawing opacity.
+    **/
+    template<typename tc, typename tl>
+    CImg<T>& draw_triangle(int x0, int y0,
+                           int x1, int y1,
+                           int x2, int y2,
+                           const CImg<tc>& texture,
+                           int tx0, int ty0,
+                           int tx1, int ty1,
+                           int tx2, int ty2,
+                           const CImg<tl>& light,
+                           int lx0, int ly0,
+                           int lx1, int ly1,
+                           int lx2, int ly2,
+                           const float opacity=1) {
+      if (is_empty()) return *this;
+      if (texture._depth>1 || texture._spectrum<_spectrum)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): Invalid specified texture (%u,%u,%u,%u,%p).",
+                                    cimg_instance,
+                                    texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
+      if (light._depth>1 || light._spectrum<_spectrum)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): Invalid specified light texture (%u,%u,%u,%u,%p).",
+                                    cimg_instance,light._width,light._height,light._depth,light._spectrum,light._data);
+      if (is_overlapped(texture))
+        return draw_triangle(x0,y0,x1,y1,x2,y2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+      if (is_overlapped(light))
+        return draw_triangle(x0,y0,x1,y1,x2,y2,texture,tx0,ty0,tx1,ty1,tx2,ty2,+light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
+
+      const int w1 = width() - 1, h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2,
+        dtx01 = (longT)tx1 - tx0, dtx02 = (longT)tx2 - tx0, dtx12 = (longT)tx2 - tx1,
+        dty01 = (longT)ty1 - ty0, dty02 = (longT)ty2 - ty0, dty12 = (longT)ty2 - ty1,
+        dlx01 = (longT)lx1 - lx0, dlx02 = (longT)lx2 - lx0, dlx12 = (longT)lx2 - lx1,
+        dly01 = (longT)ly1 - ly0, dly02 = (longT)ly2 - ly0, dly12 = (longT)ly2 - ly1;
+      const ulongT
+        twhd = (ulongT)texture._width*texture._height*texture._depth,
+        lwhd = (ulongT)light._width*light._height*light._depth;
+
+      cimg_init_scanline(opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02),
+          txm = y<y1?tx0 + cimg_rd(dtx01*yy0,dy01):tx1 + cimg_rd(dtx12*yy1,dy12),
+          txM = tx0 + cimg_rd(dtx02*yy0,dy02),
+          tym = y<y1?ty0 + cimg_rd(dty01*yy0,dy01):ty1 + cimg_rd(dty12*yy1,dy12),
+          tyM = ty0 + cimg_rd(dty02*yy0,dy02),
+          lxm = y<y1?lx0 + cimg_rd(dlx01*yy0,dy01):lx1 + cimg_rd(dlx12*yy1,dy12),
+          lxM = lx0 + cimg_rd(dlx02*yy0,dy02),
+          lym = y<y1?ly0 + cimg_rd(dly01*yy0,dy01):ly1 + cimg_rd(dly12*yy1,dy12),
+          lyM = ly0 + cimg_rd(dly02*yy0,dy02);
+        if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM,lxm,lxM,lym,lyM);
+        if (xM>=0 && xm<=w1) {
+          const int
+            cxm = (int)cimg::cut(xm,(longT)0,(longT)w1),
+            cxM = (int)cimg::cut(xM,(longT)0,(longT)w1);
+          T *ptrd = data(cxm,y);
+          const longT
+            dxmM = std::max((longT)1,xM - xm), hdxmM = dxmM/2,
+            dtxmM = txM - txm, dtymM = tyM - tym,
+            dlxmM = lxM - lxm, dlymM = lyM - lym;
+
+          for (int x = cxm; x<=cxM; ++x) {
+            const longT
+              xxm = (longT)x - xm,
+              tx = (txm*dxmM + dtxmM*xxm + hdxmM)/dxmM,
+              ty = (tym*dxmM + dtymM*xxm + hdxmM)/dxmM,
+              lx = (lxm*dxmM + dlxmM*xxm + hdxmM)/dxmM,
+              ly = (lym*dxmM + dlymM*xxm + hdxmM)/dxmM;
+            const tc *const color = &texture._atXY(tx,ty);
+            const tl *const lig = &light._atXY(lx,ly);
+            cimg_forC(*this,c) {
+              const tc col = color[c*twhd];
+              const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
+              const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
+              ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            }
+            ++ptrd;
+          }
+        }
+      }
+      return *this;
+    }
+
+    //! Draw a textured Phong-shaded 2D triangle, with perspective correction.
+    template<typename tc, typename tl>
+    CImg<T>& draw_triangle(int x0, int y0, const float z0,
+                           int x1, int y1, const float z1,
+                           int x2, int y2, const float z2,
+                           const CImg<tc>& texture,
+                           int tx0, int ty0,
+                           int tx1, int ty1,
+                           int tx2, int ty2,
+                           const CImg<tl>& light,
+                           int lx0, int ly0,
+                           int lx1, int ly1,
+                           int lx2, int ly2,
+                           const float opacity=1) {
+      if (is_empty() || z0<=0 || z1<=0 || z2<=0) return *this;
+      if (texture._depth>1 || texture._spectrum<_spectrum)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): Invalid specified texture (%u,%u,%u,%u,%p).",
+                                    cimg_instance,
+                                    texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
+      if (light._depth>1 || light._spectrum<_spectrum)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): Invalid specified light texture (%u,%u,%u,%u,%p).",
+                                    cimg_instance,light._width,light._height,light._depth,light._spectrum,light._data);
+      if (is_overlapped(texture))
+        return draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,
+                             light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+      if (is_overlapped(light))
+        return draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,texture,tx0,ty0,tx1,ty1,tx2,ty2,
+                             +light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+
+      float iz0 = 1/z0, iz1 = 1/z1, iz2 = 1/z2;
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
+
+      const int w1 = width() - 1, h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
+      const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
+        txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
+        tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
+        dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
+        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
+        lxz0 = lx0*iz0, lxz1 = lx1*iz1, lxz2 = lx2*iz2,
+        lyz0 = ly0*iz0, lyz1 = ly1*iz1, lyz2 = ly2*iz2,
+        dlxz01 = lxz1 - lxz0, dlxz02 = lxz2 - lxz0, dlxz12 = lxz2 - lxz1,
+        dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1;
+      const ulongT
+        twhd = (ulongT)texture._width*texture._height*texture._depth,
+        lwhd = (ulongT)light._width*light._height*light._depth;
+
+      cimg_init_scanline(opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
+        float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
+          izM = iz0 + diz02*yy0/dy02,
+          txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*yy1/dy12),
+          txzM = txz0 + dtxz02*yy0/dy02,
+          tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*yy1/dy12),
+          tyzM = tyz0 + dtyz02*yy0/dy02,
+          lxzm = y<y1?(lxz0 + dlxz01*yy0/dy01):(lxz1 + dlxz12*yy1/dy12),
+          lxzM = lxz0 + dlxz02*yy0/dy02,
+          lyzm = y<y1?(lyz0 + dlyz01*yy0/dy01):(lyz1 + dlyz12*yy1/dy12),
+          lyzM = lyz0 + dlyz02*yy0/dy02;
+        if (xm>xM) cimg::swap(xm,xM,izm,izM,txzm,txzM,tyzm,tyzM,lxzm,lxzM,lyzm,lyzM);
+        if (xM>=0 && xm<=w1) {
+          const int
+            cxm = (int)cimg::cut(xm,(longT)0,(longT)w1),
+            cxM = (int)cimg::cut(xM,(longT)0,(longT)w1);
+          T *ptrd = data(cxm,y);
+          const longT dxmM = std::max((longT)1,xM - xm);
+          const float
+            dizmM = izM - izm,
+            dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm,
+            dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm;
+
+          for (int x = cxm; x<=cxM; ++x) {
+            const longT xxm = (longT)x - xm;
+            const float
+              iz = izm + dizmM*xxm/dxmM,
+              txz = txzm + dtxzmM*xxm/dxmM,
+              tyz = tyzm + dtyzmM*xxm/dxmM,
+              lxz = lxzm + dlxzmM*xxm/dxmM,
+              lyz = lyzm + dlyzmM*xxm/dxmM;
+            const int
+              tx = (int)(txz/iz),
+              ty = (int)(tyz/iz),
+              lx = (int)(lxz/iz),
+              ly = (int)(lyz/iz);
+            const tc *const color = &texture._atXY(tx,ty);
+            const tl *const lig = &light._atXY(lx,ly);
+            cimg_forC(*this,c) {
+              const tc col = color[c*twhd];
+              const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
+              const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
+              ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            }
+            ++ptrd;
+          }
+        }
+      }
+      return *this;
+    }
+
+    //! Draw a textured Phong-shaded 2D triangle, with perspective correction and z-buffering.
+    template<typename tz, typename tc, typename tl>
+    CImg<T>& draw_triangle(CImg<tz>& zbuffer,
+                           int x0, int y0, const float z0,
+                           int x1, int y1, const float z1,
+                           int x2, int y2, const float z2,
+                           const CImg<tc>& texture,
+                           int tx0, int ty0,
+                           int tx1, int ty1,
+                           int tx2, int ty2,
+                           const CImg<tl>& light,
+                           int lx0, int ly0,
+                           int lx1, int ly1,
+                           int lx2, int ly2,
+                           const float opacity=1) {
+      if (is_empty() || z0<=0 || z1<=0 || z2<=0) return *this;
+      if (!is_sameXY(zbuffer))
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): Instance and specified Z-buffer (%u,%u,%u,%u,%p) have "
+                                    "different dimensions.",
+                                    cimg_instance,
+                                    zbuffer._width,zbuffer._height,zbuffer._depth,zbuffer._spectrum,zbuffer._data);
+      if (texture._depth>1 || texture._spectrum<_spectrum)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): Invalid specified texture (%u,%u,%u,%u,%p).",
+                                    cimg_instance,
+                                    texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
+      if (light._depth>1 || light._spectrum<_spectrum)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): Invalid specified light texture (%u,%u,%u,%u,%p).",
+                                    cimg_instance,light._width,light._height,light._depth,light._spectrum,light._data);
+      if (is_overlapped(texture))
+        return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,
+                             +texture,tx0,ty0,tx1,ty1,tx2,ty2,light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+      if (is_overlapped(light))
+        return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,
+                             texture,tx0,ty0,tx1,ty1,tx2,ty2,+light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+
+      float iz0 = 1/z0, iz1 = 1/z1, iz2 = 1/z2;
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
+
+      const int w1 = width() - 1, h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
+      const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
+        txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
+        tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
+        dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
+        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
+        lxz0 = lx0*iz0, lxz1 = lx1*iz1, lxz2 = lx2*iz2,
+        lyz0 = ly0*iz0, lyz1 = ly1*iz1, lyz2 = ly2*iz2,
+        dlxz01 = lxz1 - lxz0, dlxz02 = lxz2 - lxz0, dlxz12 = lxz2 - lxz1,
+        dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1;
+      const ulongT
+        twhd = (ulongT)texture._width*texture._height*texture._depth,
+        lwhd = (ulongT)light._width*light._height*light._depth;
+
+      cimg_init_scanline(opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
+        float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
+          izM = iz0 + diz02*yy0/dy02,
+          txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*yy1/dy12),
+          txzM = txz0 + dtxz02*yy0/dy02,
+          tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*yy1/dy12),
+          tyzM = tyz0 + dtyz02*yy0/dy02,
+          lxzm = y<y1?(lxz0 + dlxz01*yy0/dy01):(lxz1 + dlxz12*yy1/dy12),
+          lxzM = lxz0 + dlxz02*yy0/dy02,
+          lyzm = y<y1?(lyz0 + dlyz01*yy0/dy01):(lyz1 + dlyz12*yy1/dy12),
+          lyzM = lyz0 + dlyz02*yy0/dy02;
+        if (xm>xM) cimg::swap(xm,xM,izm,izM,txzm,txzM,tyzm,tyzM,lxzm,lxzM,lyzm,lyzM);
+        if (xM>=0 && xm<=w1) {
+          const int
+            cxm = (int)cimg::cut(xm,(longT)0,(longT)w1),
+            cxM = (int)cimg::cut(xM,(longT)0,(longT)w1);
+          T *ptrd = data(cxm,y);
+          tz *ptrz = zbuffer.data(cxm,y);
+          const longT dxmM = std::max((longT)1,xM - xm);
+          const float
+            dizmM = izM - izm,
+            dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm,
+            dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm;
+
+          for (int x = cxm; x<=cxM; ++x) {
+            const longT xxm = (longT)x - xm;
+            const float iz = izm + dizmM*xxm/dxmM;
+            if (iz>=*ptrz) {
+              *ptrz = (tz)iz;
+              const float
+                txz = txzm + dtxzmM*xxm/dxmM,
+                tyz = tyzm + dtyzmM*xxm/dxmM,
+                lxz = lxzm + dlxzmM*xxm/dxmM,
+                lyz = lyzm + dlyzmM*xxm/dxmM;
+              const int
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz),
+                lx = (int)(lxz/iz),
+                ly = (int)(lyz/iz);
+              const tc *const color = &texture._atXY(tx,ty);
+              const tl *const lig = &light._atXY(lx,ly);
+              cimg_forC(*this,c) {
+                const tc col = color[c*twhd];
+                const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
+                const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
+                ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+              }
+            }
+            ++ptrd; ++ptrz;
+          }
+        }
+      }
+      return *this;
+    }
+
+    //! Draw a filled 4D rectangle.
+    /**
+       \param x0 X-coordinate of the upper-left rectangle corner.
+       \param y0 Y-coordinate of the upper-left rectangle corner.
+       \param z0 Z-coordinate of the upper-left rectangle corner.
+       \param c0 C-coordinate of the upper-left rectangle corner.
+       \param x1 X-coordinate of the lower-right rectangle corner.
+       \param y1 Y-coordinate of the lower-right rectangle corner.
+       \param z1 Z-coordinate of the lower-right rectangle corner.
+       \param c1 C-coordinate of the lower-right rectangle corner.
+       \param val Scalar value used to fill the rectangle area.
+       \param opacity Drawing opacity.
+    **/
+    CImg<T>& draw_rectangle(const int x0, const int y0, const int z0, const int c0,
+                            const int x1, const int y1, const int z1, const int c1,
+                            const T val, const float opacity=1) {
+      if (is_empty()) return *this;
+      const int
+        nx0 = x0<x1?x0:x1, nx1 = x0^x1^nx0,
+        ny0 = y0<y1?y0:y1, ny1 = y0^y1^ny0,
+        nz0 = z0<z1?z0:z1, nz1 = z0^z1^nz0,
+        nc0 = c0<c1?c0:c1, nc1 = c0^c1^nc0;
+      const int
+        lx = (1 + nx1 - nx0) + (nx1>=width()?width() - 1 - nx1:0) + (nx0<0?nx0:0),
+        ly = (1 + ny1 - ny0) + (ny1>=height()?height() - 1 - ny1:0) + (ny0<0?ny0:0),
+        lz = (1 + nz1 - nz0) + (nz1>=depth()?depth() - 1 - nz1:0) + (nz0<0?nz0:0),
+        lc = (1 + nc1 - nc0) + (nc1>=spectrum()?spectrum() - 1 - nc1:0) + (nc0<0?nc0:0);
+      const ulongT
+        offX = (ulongT)_width - lx,
+        offY = (ulongT)_width*(_height - ly),
+        offZ = (ulongT)_width*_height*(_depth - lz);
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
+      T *ptrd = data(nx0<0?0:nx0,ny0<0?0:ny0,nz0<0?0:nz0,nc0<0?0:nc0);
+      if (lx>0 && ly>0 && lz>0 && lc>0)
+        for (int v = 0; v<lc; ++v) {
+          for (int z = 0; z<lz; ++z) {
+            for (int y = 0; y<ly; ++y) {
+              if (opacity>=1) {
+                if (sizeof(T)!=1) { for (int x = 0; x<lx; ++x) *(ptrd++) = val; ptrd+=offX; }
+                else { std::memset(ptrd,(int)val,lx); ptrd+=_width; }
+              } else { for (int x = 0; x<lx; ++x) { *ptrd = (T)(nopacity*val + *ptrd*copacity); ++ptrd; } ptrd+=offX; }
+            }
+            ptrd+=offY;
+          }
+          ptrd+=offZ;
+        }
+      return *this;
+    }
+
+    //! Draw a filled 3D rectangle.
+    /**
+       \param x0 X-coordinate of the upper-left rectangle corner.
+       \param y0 Y-coordinate of the upper-left rectangle corner.
+       \param z0 Z-coordinate of the upper-left rectangle corner.
+       \param x1 X-coordinate of the lower-right rectangle corner.
+       \param y1 Y-coordinate of the lower-right rectangle corner.
+       \param z1 Z-coordinate of the lower-right rectangle corner.
+       \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
+       \param opacity Drawing opacity.
+    **/
+    template<typename tc>
+    CImg<T>& draw_rectangle(const int x0, const int y0, const int z0,
+                            const int x1, const int y1, const int z1,
+                            const tc *const color, const float opacity=1) {
+      if (is_empty()) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_rectangle(): Specified color is (null).",
+                                    cimg_instance);
+      cimg_forC(*this,c) draw_rectangle(x0,y0,z0,c,x1,y1,z1,c,(T)color[c],opacity);
+      return *this;
+    }
+
+    //! Draw a filled 2D rectangle.
+    /**
+       \param x0 X-coordinate of the upper-left rectangle corner.
+       \param y0 Y-coordinate of the upper-left rectangle corner.
+       \param x1 X-coordinate of the lower-right rectangle corner.
+       \param y1 Y-coordinate of the lower-right rectangle corner.
+       \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
+       \param opacity Drawing opacity.
+    **/
+    template<typename tc>
+    CImg<T>& draw_rectangle(const int x0, const int y0,
+                            const int x1, const int y1,
+                            const tc *const color, const float opacity=1) {
+      return draw_rectangle(x0,y0,0,x1,y1,_depth - 1,color,opacity);
+    }
+
+    //! Draw a outlined 2D rectangle \overloading.
+    template<typename tc>
+    CImg<T>& draw_rectangle(const int x0, const int y0,
+                            const int x1, const int y1,
+                            const tc *const color, const float opacity,
+                            const unsigned int pattern) {
+      if (is_empty()) return *this;
+      if (y0==y1) return draw_line(x0,y0,x1,y0,color,opacity,pattern,true);
+      if (x0==x1) return draw_line(x0,y0,x0,y1,color,opacity,pattern,true);
+      const int
+        nx0 = x0<x1?x0:x1, nx1 = x0^x1^nx0,
+        ny0 = y0<y1?y0:y1, ny1 = y0^y1^ny0;
+      if (ny1==ny0 + 1) return draw_line(nx0,ny0,nx1,ny0,color,opacity,pattern,true).
+                      draw_line(nx1,ny1,nx0,ny1,color,opacity,pattern,false);
+      return draw_line(nx0,ny0,nx1,ny0,color,opacity,pattern,true).
+        draw_line(nx1,ny0 + 1,nx1,ny1 - 1,color,opacity,pattern,false).
+        draw_line(nx1,ny1,nx0,ny1,color,opacity,pattern,false).
+        draw_line(nx0,ny1 - 1,nx0,ny0 + 1,color,opacity,pattern,false);
+    }
+
+    //! Draw a filled 2D polygon.
+    /**
+       \param points Set of polygon vertices.
+       \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
+       \param opacity Drawing opacity.
+     **/
+    template<typename tp, typename tc>
+    CImg<T>& draw_polygon(const CImg<tp>& points,
+                          const tc *const color, const float opacity=1) {
+      if (is_empty() || !points) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_polygon(): Specified color is (null).",
+                                    cimg_instance);
+      if (points.height()!=2)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_polygon(): Invalid specified point set (%u,%u,%u,%u).",
+                                    cimg_instance,
+                                    points._width,points._height,points._depth,points._spectrum);
+      CImg<intT> ipoints;
+      if (cimg::type<tp>::is_float()) ipoints = points.get_round();
+      else ipoints.assign(points,cimg::type<tp>::string()==cimg::type<int>::string());
+
+      if (ipoints._width==1) return draw_point(ipoints(0,0),ipoints(0,1),color,opacity);
+      if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),color,opacity);
+      if (ipoints._width==3) return draw_triangle(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
+                                                  ipoints(2,0),ipoints(2,1),color,opacity);
+      cimg_init_scanline(opacity);
+      int
+        xmin = 0, ymin = 0,
+        xmax = ipoints.get_shared_row(0).max_min(xmin),
+        ymax = ipoints.get_shared_row(1).max_min(ymin);
+      if (xmax<0 || xmin>=width() || ymax<0 || ymin>=height()) return *this;
+      if (ymin==ymax) return draw_line(xmin,ymin,xmax,ymax,color,opacity);
+      ymin = std::max(0,ymin);
+      ymax = std::min(height() - 1,ymax);
+
+      CImg<intT> Xs(ipoints._width,ymax - ymin + 1);
+      CImg<uintT> count(Xs._height,1,1,1,0);
+      unsigned int n = 0, nn = 1;
+      bool go_on = true;
+
+      while (go_on) {
+        unsigned int an = (nn + 1)%ipoints._width;
+        const int x0 = ipoints(n,0), y0 = ipoints(n,1);
+        if (ipoints(nn,1)==y0) while (ipoints(an,1)==y0) { nn = an; (an+=1)%=ipoints._width; }
+        const int x1 = ipoints(nn,0), y1 = ipoints(nn,1);
+        unsigned int tn = an;
+        while (ipoints(tn,1)==y1) (tn+=1)%=ipoints._width;
+        if (y0!=y1) {
+          const int
+            y2 = ipoints(tn,1),
+            x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
+            step = cimg::sign(y01),
+            tmax = std::max(1,cimg::abs(y01)),
+            htmax = tmax*cimg::sign(x01)/2 + 1,
+            tend = tmax - (step==cimg::sign(y12));
+          unsigned int y = (unsigned int)y0 - ymin;
+          for (int t = 0; t<=tend; ++t, y+=step)
+            if (y<Xs._height) Xs(count[y]++,y) = x0 + cimg_rd(t*x01,tmax);
+        }
+        go_on = nn>n;
+        n = nn;
+        nn = an;
+      }
+
+      cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
+      cimg_forY(Xs,y) if (count[y]) {
+        const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
+        int px = width();
+        for (unsigned int k = 0; k<Xsy._width; k+=2) {
+          int x0 = Xsy[k];
+          const int x1 = Xsy[k + 1];
+          x0+=x0==px;
+          cimg_draw_scanline(x0,x1,y + ymin,color,opacity,1);
+          px = x1;
+        }
+      }
+      return *this;
+    }
+
+    //! Draw a outlined 2D or 3D polygon \overloading.
+    template<typename tp, typename tc>
+    CImg<T>& draw_polygon(const CImg<tp>& points,
+                          const tc *const color, const float opacity, const unsigned int pattern,
+                          const bool is_closed=true) {
+      if (is_empty() || !points) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_polygon(): Specified color is (null).",
+                                    cimg_instance);
+      if (points.height()!=2)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_polygon(): Invalid specified point set (%u,%u,%u,%u).",
+                                    cimg_instance,
+                                    points._width,points._height,points._depth,points._spectrum);
+      CImg<intT> ipoints;
+      if (cimg::type<tp>::is_float()) ipoints = points.get_round();
+      else ipoints.assign(points,cimg::type<tp>::string()==cimg::type<int>::string());
+
+      if (ipoints._width==1) return draw_point(ipoints(0,0),ipoints(0,1),color,opacity);
+      if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
+                                              color,opacity,pattern);
+      bool ninit_hatch = true, is_drawn = false;
+      int x0 = ipoints(0,0), y0 = ipoints(0,1);
+      const unsigned int N = ipoints._width - (is_closed?0:1);
+      for (unsigned int i = 0; i<N; ++i) {
+        const int
+          ni = (i + 1)%ipoints.width(),
+          x1 = ipoints(ni,0), y1 = ipoints(ni,1),
+          x01 = x1 - x0, y01 = y1 - y0,
+          l = std::max(cimg::abs(x01),cimg::abs(y01));
+        if (l) {
+          const bool draw_last_pixel = is_closed || i<N - 1?false:true;
+          draw_line(x0,y0,x1,y1,color,opacity,pattern,ninit_hatch,draw_last_pixel);
+          is_drawn = true;
+        }
+        ninit_hatch = false;
+        x0 = x1; y0 = y1;
+      }
+      if (!is_drawn) draw_point(ipoints(0,0),ipoints(0,1),color,opacity); // All vertices were the same
+      return *this;
+    }
+
+    //! Draw a filled 2D ellipse.
+    /**
+       \param x0 X-coordinate of the ellipse center.
+       \param y0 Y-coordinate of the ellipse center.
+       \param r1 First radius of the ellipse.
+       \param r2 Second radius of the ellipse.
+       \param angle Angle of the first radius.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+    **/
+    template<typename tc>
+    CImg<T>& draw_ellipse(const int x0, const int y0, const float r1, const float r2, const float angle,
+                          const tc *const color, const float opacity=1) {
+      return _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,0U,true);
+    }
+
+    //! Draw a filled 2D ellipse \overloading.
+    /**
+       \param x0 X-coordinate of the ellipse center.
+       \param y0 Y-coordinate of the ellipse center.
+       \param tensor Diffusion tensor describing the ellipse.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+    **/
+    template<typename t, typename tc>
+    CImg<T>& draw_ellipse(const int x0, const int y0, const CImg<t> &tensor,
+                          const tc *const color, const float opacity=1) {
+      CImgList<t> eig = tensor.get_symmetric_eigen();
+      const CImg<t> &val = eig[0], &vec = eig[1];
+      return draw_ellipse(x0,y0,std::sqrt(val(0)),std::sqrt(val(1)),
+                          std::atan2(vec(0,1),vec(0,0))*180/cimg::PI,
+                          color,opacity);
+    }
+
+    //! Draw an outlined 2D ellipse.
+    /**
+       \param x0 X-coordinate of the ellipse center.
+       \param y0 Y-coordinate of the ellipse center.
+       \param r1 First radius of the ellipse.
+       \param r2 Second radius of the ellipse.
+       \param angle Angle of the first radius.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param pattern An integer whose bits describe the outline pattern.
+    **/
+    template<typename tc>
+    CImg<T>& draw_ellipse(const int x0, const int y0, const float r1, const float r2, const float angle,
+                          const tc *const color, const float opacity, const unsigned int pattern) {
+      if (pattern) _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,pattern,false);
+      return *this;
+    }
+
+    //! Draw an outlined 2D ellipse \overloading.
+    /**
+       \param x0 X-coordinate of the ellipse center.
+       \param y0 Y-coordinate of the ellipse center.
+       \param tensor Diffusion tensor describing the ellipse.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param pattern An integer whose bits describe the outline pattern.
+    **/
+    template<typename t, typename tc>
+    CImg<T>& draw_ellipse(const int x0, const int y0, const CImg<t> &tensor,
+                          const tc *const color, const float opacity,
+                          const unsigned int pattern) {
+      CImgList<t> eig = tensor.get_symmetric_eigen();
+      const CImg<t> &val = eig[0], &vec = eig[1];
+      return draw_ellipse(x0,y0,std::sqrt(val(0)),std::sqrt(val(1)),
+                          std::atan2(vec(0,1),vec(0,0))*180/cimg::PI,
+                          color,opacity,pattern);
+    }
+
+    template<typename tc>
+    CImg<T>& _draw_ellipse(const int x0, const int y0, const float radius1, const float radius2, const float angle,
+                           const tc *const color, const float opacity,
+                           const unsigned int pattern, const bool is_filled) {
+      if (is_empty() || (!is_filled && !pattern)) return *this;
+      const float radiusM = std::max(radius1,radius2);
+      if (radius1<0 || radius2<0 || x0 - radiusM>=width() || y0 + radiusM<0 || y0 - radiusM>=height()) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_ellipse(): Specified color is (null).",
+                                    cimg_instance);
+      const int iradius1 = (int)cimg::round(radius1), iradius2 = (int)cimg::round(radius2);
+      if (!iradius1 && !iradius2) return draw_point(x0,y0,color,opacity);
+      if (iradius1==iradius2) {
+        if (is_filled) return draw_circle(x0,y0,iradius1,color,opacity);
+        else if (pattern==~0U) return draw_circle(x0,y0,iradius1,color,opacity,pattern);
+      }
+      const float ang = (float)(angle*cimg::PI/180);
+
+      if (!is_filled) { // Outlined
+        const float ca = std::cos(ang), sa = std::sin(ang);
+        CImg<int> points((unsigned int)cimg::round(6*radiusM),2);
+        cimg_forX(points,k) {
+          const float
+            _ang = (float)(2*cimg::PI*k/points._width),
+            X = (float)(radius1*std::cos(_ang)),
+            Y = (float)(radius2*std::sin(_ang));
+          points(k,0) = (int)cimg::round(x0 + (X*ca - Y*sa));
+          points(k,1) = (int)cimg::round(y0 + (X*sa + Y*ca));
+        }
+        draw_polygon(points,color,opacity,pattern);
+      } else { // Filled
+        cimg_init_scanline(opacity);
+        const float
+          ca = std::cos(ang),
+          sa = -std::sin(ang),
+          ca2 = ca*ca,
+          sa2 = sa*sa,
+          casa = ca*sa,
+          i1 = 1/cimg::sqr(radius1),
+          i2 = 1/cimg::sqr(radius2),
+          t1 = i1*ca2 + i2*sa2,
+          t2 = (i2 - i1)*casa,
+          t3 = i2*ca2 + i1*sa2,
+          t12 = t1*2;
+        const int
+          _ymin = (int)std::floor(y0 - radiusM),
+          _ymax = (int)std::ceil(y0 + radiusM),
+          ymin = _ymin<0?0:_ymin,
+          ymax = _ymax>=height()?height() - 1:_ymax;
+        for (int y = ymin; y<=ymax; ++y) {
+          const float
+            Y = y - y0 + 0.5f,
+            B = 2*t2*Y,
+            C = t3*Y*Y - 1,
+            D = B*B - 4*t1*C;
+          if (D>=0) {
+            const float sD = std::sqrt(D);
+            const int
+              xmin = (int)(x0 + cimg::round((-B - sD)/t12)),
+              xmax = (int)(x0 + cimg::round((-B + sD)/t12));
+            cimg_draw_scanline(xmin,xmax,y,color,opacity,1);
+          }
+        }
+      }
+      return *this;
+    }
+
+    //! Draw a filled 2D circle.
+    /**
+       \param x0 X-coordinate of the circle center.
+       \param y0 Y-coordinate of the circle center.
+       \param radius  Circle radius.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \note
+       - Circle version of the Bresenham's algorithm is used.
+    **/
+    template<typename tc>
+    CImg<T>& draw_circle(const int x0, const int y0, int radius,
+                         const tc *const color, const float opacity=1) {
+      if (is_empty()) return *this;
+      if (radius<0 || x0 - radius>=width() || y0 + radius<0 || y0 - radius>=height()) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_circle(): Specified color is (null).",
+                                    cimg_instance);
+      if (!radius) return draw_point(x0,y0,color,opacity);
+      cimg_init_scanline(opacity);
+      if (y0>=0 && y0<height()) cimg_draw_scanline(x0 - radius,x0 + radius,y0,color,opacity,1);
+      for (int f = 1 - radius, ddFx = 0, ddFy = -(radius<<1), x = 0, y = radius; x<y; ) {
+        if (f>=0) {
+          const int x1 = x0 - x, x2 = x0 + x, y1 = y0 - y, y2 = y0 + y;
+          if (y1>=0 && y1<height()) cimg_draw_scanline(x1,x2,y1,color,opacity,1);
+          if (y2>=0 && y2<height()) cimg_draw_scanline(x1,x2,y2,color,opacity,1);
+          f+=(ddFy+=2); --y;
+        }
+        const bool no_diag = y!=(x++);
+        ++(f+=(ddFx+=2));
+        const int x1 = x0 - y, x2 = x0 + y, y1 = y0 - x, y2 = y0 + x;
+        if (no_diag) {
+          if (y1>=0 && y1<height()) cimg_draw_scanline(x1,x2,y1,color,opacity,1);
+          if (y2>=0 && y2<height()) cimg_draw_scanline(x1,x2,y2,color,opacity,1);
+        }
+      }
+      return *this;
+    }
+
+    //! Draw an outlined 2D circle.
+    /**
+       \param x0 X-coordinate of the circle center.
+       \param y0 Y-coordinate of the circle center.
+       \param radius Circle radius.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
+       \param opacity Drawing opacity.
+       \param pattern An integer whose bits describe the outline pattern.
+    **/
+    template<typename tc>
+    CImg<T>& draw_circle(const int x0, const int y0, int radius,
+                         const tc *const color, const float opacity,
+                         const unsigned int pattern) {
+      if (pattern!=~0U) return draw_ellipse(x0,y0,radius,radius,0,color,opacity,pattern);
+      if (is_empty()) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_circle(): Specified color is (null).",
+                                    cimg_instance);
+      if (radius<0 || x0 - radius>=width() || y0 + radius<0 || y0 - radius>=height()) return *this;
+      if (!radius) return draw_point(x0,y0,color,opacity);
+
+      draw_point(x0 - radius,y0,color,opacity).draw_point(x0 + radius,y0,color,opacity).
+        draw_point(x0,y0 - radius,color,opacity).draw_point(x0,y0 + radius,color,opacity);
+      if (radius==1) return *this;
+      for (int f = 1 - radius, ddFx = 0, ddFy = -(radius<<1), x = 0, y = radius; x<y; ) {
+        if (f>=0) { f+=(ddFy+=2); --y; }
+        ++x; ++(f+=(ddFx+=2));
+        if (x!=y + 1) {
+          const int x1 = x0 - y, x2 = x0 + y, y1 = y0 - x, y2 = y0 + x,
+            x3 = x0 - x, x4 = x0 + x, y3 = y0 - y, y4 = y0 + y;
+          draw_point(x1,y1,color,opacity).draw_point(x1,y2,color,opacity).
+            draw_point(x2,y1,color,opacity).draw_point(x2,y2,color,opacity);
+          if (x!=y)
+            draw_point(x3,y3,color,opacity).draw_point(x4,y4,color,opacity).
+              draw_point(x4,y3,color,opacity).draw_point(x3,y4,color,opacity);
+        }
+      }
+      return *this;
+    }
+
+    //! Draw an image.
+    /**
+       \param sprite Sprite image.
+       \param x0 X-coordinate of the sprite position.
+       \param y0 Y-coordinate of the sprite position.
+       \param z0 Z-coordinate of the sprite position.
+       \param c0 C-coordinate of the sprite position.
+       \param opacity Drawing opacity.
+    **/
 #endif

@@ -1,8 +1,6 @@
 #ifndef CIMG_MODULE_MATH_PARSER_RUNTIME_H
 #define CIMG_MODULE_MATH_PARSER_RUNTIME_H
 
-                                    s_op,variable_name._data,s0);
-      }
 
       // Evaluate a portion of the compiled expression.
       void eval(const CImg<ulongT> *const p_begin, const CImg<ulongT> *const p_end) {
