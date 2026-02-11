@@ -148,10 +148,11 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 3. Extract these blocks into standalone C++ test files (e.g., `tests/test_image_draw.cpp`).
 4. Try to read and fix grammar/syntax errors in the extracted snippets (e.g., replace `...`, declare missing variables) to make them compilable.
 
-### Phase 8: Test Execution
+### Phase 8: Test Execution and Fixes
 1. Compile all extracted test files from Phase 7.
-2. Run the compiled tests to verify they execute without crashing (or pass assertions if present).
-3. Report any failures as potential regressions or documentation errors.
+2. Run the compiled tests.
+3. Record results (filename, status, error info) in `PLAN-2-TEST.md`.
+4. Iteratively fix the extracted test code (or the source documentation if appropriate) until **ALL** tests pass.
 
 ## Verification requirements
 - Compile parity:
@@ -181,7 +182,7 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 - [x] Phase 5 — Verify and Fix Function Integrity
 - [x] Phase 6 — Doxygen Comment Integrity
 - [x] Phase 7 — Test Extraction
-- [x] Phase 8 — Test Execution
+- [ ] Phase 8 — Test Execution
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.
