@@ -137,6 +137,11 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 2. If any function is found to be split (e.g., partial function in one file, rest in another), refactor to keep the function unit intact within a single file.
 3. Verify that all split boundaries occur at natural logical points (between functions, classes, or independent blocks).
 
+### Phase 6: Doxygen Comment Integrity
+1. Check that no Doxygen comments (`/** ... **/` or `//! ...`) are split across file boundaries.
+2. Verify that function documentation remains immediately preceding the function it documents.
+3. Fix any split comments by moving the entire comment block to the file containing the documented symbol.
+
 ## Verification requirements
 - Compile parity:
   - `#include "CImg.h"`
@@ -162,6 +167,7 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 - [x] Phase 3 — IO, display, containers split
 - [x] Phase 4 — Threshold cleanup and consolidation
 - [x] Phase 5 — Verify and Fix Function Integrity
+- [x] Phase 6 — Doxygen Comment Integrity
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.
