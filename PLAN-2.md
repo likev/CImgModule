@@ -142,6 +142,17 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 2. Verify that function documentation remains immediately preceding the function it documents.
 3. Fix any split comments by moving the entire comment block to the file containing the documented symbol.
 
+### Phase 7: Test Extraction
+1. Create a `tests/` directory.
+2. Scan all `module/**` headers for Doxygen comments containing `\code ... \endcode` blocks.
+3. Extract these blocks into standalone C++ test files (e.g., `tests/test_image_draw.cpp`).
+4. Ensure extracted tests include necessary headers (e.g., `CImg.h`).
+
+### Phase 8: Test Execution
+1. Compile all extracted test files from Phase 7.
+2. Run the compiled tests to verify they execute without crashing (or pass assertions if present).
+3. Report any failures as potential regressions or documentation errors.
+
 ## Verification requirements
 - Compile parity:
   - `#include "CImg.h"`
@@ -156,6 +167,7 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 ## Definition of done
 - No `module/**` file exceeds `3000` lines.
 - All Phase 1-3 verification checks pass.
+- Extracted documentation tests compile and run successfully (Phase 8).
 
 ## Progress tracking
 - Update this section as work advances so status is visible in a single place.
@@ -168,6 +180,8 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 - [x] Phase 4 — Threshold cleanup and consolidation
 - [x] Phase 5 — Verify and Fix Function Integrity
 - [x] Phase 6 — Doxygen Comment Integrity
+- [ ] Phase 7 — Test Extraction
+- [ ] Phase 8 — Test Execution
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.
