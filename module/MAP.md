@@ -28,6 +28,7 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 | Feature toggles (`cimg_display`, `cimg_use_*`, OpenMP) | `module/core/config.h` | Must remain available before dependent includes. |
 | Portable scalar/integer type aliases/macros | `module/core/types.h` | Must remain ABI-neutral and pre-class. |
 | Common macros/assertions/helpers | `module/core/utils.h` | Shared substrate for all downstream modules. |
+| Core exception hierarchy (`CImgException`, `CImg*Exception`) | `module/core/exceptions.h` | Extracted as a contiguous namespace-level exception block. |
 | VT100 color escape sequences (`cimg::t_*`) | `module/math/math_colors.h` | Keep available before exception formatting. |
 | `namespace cimg` helpers (math-ish/core utilities) | `module/math/math_core.h`, `module/math/math_algorithms.h` | Split low-level constants/utilities from algorithms. |
 | `CImg<T>::_cimg_math_parser` expression compiler | `module/math/math_parser.h` | Included inside the `CImg<T>` definition to preserve class scope. |

@@ -156,6 +156,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-11_: Phase 1 extraction step 40: moved `CImg<T>` pointwise math transform block (`_cimg_create_pointwise_functions`, unary transforms, `atan2`, `acosh/asinh/atanh`) into `module/image/image_ops_advanced.h`.
 - _2026-02-11_: Phase 1 extraction step 41: moved the remaining in-class `CImg<T>` implementation body into `module/image/image_class_body.h`; `CImg.h` now keeps only image fields plus `module/image/image_class_decl.h` and `module/image/image_class_body.h` includes for `CImg<T>`.
 - _2026-02-11_: `/module/image` extraction is now complete for `CImg<T>` class content in phase 1; further cleanup/splitting can be done during Phase 2 stabilization.
+- _2026-02-11_: Phase 1 extraction step 42: moved namespace-level exception hierarchy (`CImgException`, `CImgAbortException`, `CImgArgumentException`, `CImgDisplayException`, `CImgInstanceException`, `CImgIOException`, `CImgWarningException`) into `module/core/exceptions.h` and included it from `CImg.h`.
 
 
 ## Risk register and mitigations

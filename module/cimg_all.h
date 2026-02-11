@@ -6,6 +6,7 @@
 #include "core/config.h"
 #include "core/types.h"
 #include "core/utils.h"
+#include "core/exceptions.h"
 
 #include "math/math_colors.h"
 #include "math/math_core.h"
