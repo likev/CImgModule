@@ -167,7 +167,7 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 - [x] Phase 3 — IO, display, containers split
 - [x] Phase 4 — Threshold cleanup and consolidation
 - [x] Phase 5 — Verify and Fix Function Integrity
-- [x] Phase 6 — Doxygen Comment Integrity
+- [ ] Phase 6 — Doxygen Comment Integrity
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.
