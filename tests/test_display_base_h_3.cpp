@@ -10,7 +10,7 @@ int main() {
 CImgDisplay disp(400,400);
        const char *const keycode = "TAB";
        while (!disp.is_closed()) {
-         if (disp.is_key(keycode)) { ... } // Equivalent to 'if (disp.is_keyTAB())'
+         if (disp.is_key(keycode)) { // ... } // Equivalent to 'if (disp.is_keyTAB())'
          disp.wait();
        }
     } catch (const CImgException& e) {

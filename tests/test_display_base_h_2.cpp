@@ -9,7 +9,7 @@ int main() {
     try {
 CImgDisplay disp(400,400);
        while (!disp.is_closed()) {
-         if (disp.key(cimg::keyTAB)) { ... } // Equivalent to 'if (disp.is_keyTAB())'
+         if (disp.key(cimg::keyTAB)) { // ... } // Equivalent to 'if (disp.is_keyTAB())'
          disp.wait();
        }
     } catch (const CImgException& e) {

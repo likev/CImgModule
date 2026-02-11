@@ -10,7 +10,7 @@ int main() {
 CImgDisplay disp(400,400);
        const unsigned int key_seq[] = { cimg::keyCTRLLEFT, cimg::keyD };
        while (!disp.is_closed()) {
-         if (disp.is_key_sequence(key_seq,2)) { ... } // Test for the 'CTRL+D' keyboard event
+         if (disp.is_key_sequence(key_seq,2)) { // ... } // Test for the 'CTRL+D' keyboard event
          disp.wait();
        }
     } catch (const CImgException& e) {

@@ -11,7 +11,7 @@ CImgDisplay disp(400,400);
        while (!disp.is_closed()) {
          if (disp.wheel()) {
            int counter = disp.wheel(); // Read the state of the mouse wheel
-           ... // Do what you want with 'counter'
+           // ... // Do what you want with 'counter'
            disp.set_wheel(); // Reset the wheel value to 0
          }
          disp.wait();

@@ -7,6 +7,7 @@ using namespace cimg_library;
 int main() {
     // Extracted from module/image/image_body_arithmetic.h
     try {
+CImg<float> img2(100,100,1,3);
 const CImg<float>
           img1("reference.jpg"),
           img2 = img1.get_mirror('x'),

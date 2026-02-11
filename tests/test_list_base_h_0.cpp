@@ -7,6 +7,7 @@ using namespace cimg_library;
 int main() {
     // Extracted from module/containers/list_base.h
     try {
+CImgList<float> list(4, 100, 100, 1, 3);
 CImgList<> list; // Assuming this image list is not empty
        for (CImgList<>::iterator it = list.begin(); it<list.end(); ++it) (*it).mirror('x');
     } catch (const CImgException& e) {
