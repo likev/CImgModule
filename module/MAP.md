@@ -31,6 +31,8 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 | Core exception hierarchy (`CImgException`, `CImg*Exception`) | `module/core/exceptions.h` | Extracted as a contiguous namespace-level exception block. |
 | VT100 color escape sequences (`cimg::t_*`) | `module/math/math_colors.h` | Keep available before exception formatting. |
 | `namespace cimg` helpers (math-ish/core utilities) | `module/math/math_core.h`, `module/math/math_algorithms.h` | Split low-level constants/utilities from algorithms. |
+| Remaining `namespace cimg` core state/runtime functions (`unused`, `exception_mode`, `openmp_mode`, platform snprintf wrappers, `tictoc`, `strbuffersize`, `dialog`, `eval`) | `module/core/cimg_namespace_base.h`, `module/core/cimg_namespace_runtime.h` | Kept in two includes inserted at the two `namespace cimg` completion points in `CImg.h`. |
+| Remaining `namespace cimg` declarations and OpenMP helper macros (`cimg_openmp_*`) | `module/core/cimg_namespace_decl.h` | Consolidates the first `namespace cimg` declaration block in `CImg.h`; includes `module/core/cimg_namespace_base.h`. |
 | `CImg<T>::_cimg_math_parser` expression compiler | `module/math/math_parser.h` | Included inside the `CImg<T>` definition to preserve class scope. |
 | `CImgDisplay` + backend-specific branches | `module/display/*` | Keep backend macro guards exactly equivalent. |
 | `CImg<T>` declaration + implementation body | `module/image/*` | Perform in smallest possible extraction chunks. |

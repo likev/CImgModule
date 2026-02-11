@@ -157,6 +157,8 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-11_: Phase 1 extraction step 41: moved the remaining in-class `CImg<T>` implementation body into `module/image/image_class_body.h`; `CImg.h` now keeps only image fields plus `module/image/image_class_decl.h` and `module/image/image_class_body.h` includes for `CImg<T>`.
 - _2026-02-11_: `/module/image` extraction is now complete for `CImg<T>` class content in phase 1; further cleanup/splitting can be done during Phase 2 stabilization.
 - _2026-02-11_: Phase 1 extraction step 42: moved namespace-level exception hierarchy (`CImgException`, `CImgAbortException`, `CImgArgumentException`, `CImgDisplayException`, `CImgInstanceException`, `CImgIOException`, `CImgWarningException`) into `module/core/exceptions.h` and included it from `CImg.h`.
+- _2026-02-11_: Phase 1 extraction step 43: moved remaining `namespace cimg` function definitions from `CImg.h` into `module/core/cimg_namespace_base.h` (`unused`, `exception_mode`, `openmp_mode`, platform-safe formatted I/O wrappers) and `module/core/cimg_namespace_runtime.h` (`tictoc`, `strbuffersize`, `dialog`, `eval`).
+- _2026-02-11_: Phase 1 extraction step 44: moved the remaining `namespace cimg` declaration/macro block from `CImg.h` into `module/core/cimg_namespace_decl.h` (forward declarations + OpenMP helper macros), leaving `CImg.h` as an include-based umbrella.
 
 
 ## Risk register and mitigations
