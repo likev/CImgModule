@@ -626,17 +626,7 @@ namespace cimg_library {
      - operator()(): Read or write pixel values.
      - display(): displays the image in a new window.
   **/
-  template<typename T>
-  struct CImg {
-
-    unsigned int _width, _height, _depth, _spectrum;
-    bool _is_shared;
-    T *_data;
-
-    #include "module/image/image_class_decl.h"
-
-    #include "module/image/image_class_body.h"
-  }; // struct CImg { ...
+  #include "module/image/image_class.h"
 
 #include "module/containers/list.h"
 
