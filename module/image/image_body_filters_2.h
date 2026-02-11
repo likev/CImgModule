@@ -2079,15 +2079,4 @@
       return U;
     }
 
-    //! Compute correspondence map between two images, using a patch-matching algorithm.
-    /**
-        \param patch_image The image containing the reference patches to match with the instance image.
-        \param patch_width Width of the patch used for matching.
-        \param patch_height Height of the patch used for matching.
-        \param patch_depth Depth of the patch used for matching.
-        \param nb_iterations Number of patch-match iterations.
-        \param nb_randoms Number of randomization attempts (per pixel).
-        \param patch_penalization Penalization factor in score related patch occurrences.
-               if negative, also tells that identity result is not avoided.
-        \param guide Image used as the initial correspondence estimate for the algorithm.
 #endif
