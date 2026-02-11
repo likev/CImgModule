@@ -1,0 +1,148 @@
+# PLAN-2: Split Oversized `module/*` Files Into Smaller Units
+
+## Objective
+Reduce maintenance risk by splitting oversized files in `module/*` into smaller, cohesive headers while preserving behavior and public API compatibility.
+
+## Target size policy
+- Hard threshold: files should not exceed `3000` lines after refactor.
+- Preferred size: keep most files in the `800-2500` line range.
+- Exception rule: generated or embedded data files can exceed threshold only if clearly documented.
+
+## Current oversized files in `module/*` (scan)
+- `26538` lines: `module/image/image_class_body.h`
+- `12864` lines: `module/math/math_parser.h`
+- `5637` lines: `module/math/math_core.h`
+- `5176` lines: `module/containers/list.h`
+- `4810` lines: `module/io/image_load.h`
+- `4179` lines: `module/display/display_core.h`
+
+## Scope
+- In scope:
+  - `module/**`
+- Out of scope:
+  - `plugins/**`
+  - `examples/**`
+  - `html/**`
+
+## Refactor strategy by file
+
+### A) `module/image/*` (highest priority)
+- `module/image/image_class_body.h`:
+  - Split into about 10 focused chunks included from `image_class_body.h`:
+    - `image_body_constructors.h`
+    - `image_body_assign_copy.h`
+    - `image_body_geometry.h`
+    - `image_body_arithmetic.h`
+    - `image_body_pointwise.h`
+    - `image_body_filters.h`
+    - `image_body_morphology.h`
+    - `image_body_draw.h`
+    - `image_body_transform.h`
+    - `image_body_analysis.h`
+- `module/image/image_pixels.h`:
+  - Split into:
+    - `image_accessors.h`
+    - `image_iterators.h`
+    - `image_value_ops.h`
+- `module/image/image_ops_advanced.h`:
+  - Split into:
+    - `image_checks.h`
+    - `image_pointwise.h`
+    - `image_object3d_ops.h` (if needed)
+
+### B) `module/math/*`
+- `module/math/math_parser.h`:
+  - Split into about 6 focused headers:
+    - `math_parser_tokens.h`
+    - `math_parser_ast.h`
+    - `math_parser_compile.h`
+    - `math_parser_eval.h`
+    - `math_parser_functions.h`
+    - `math_parser_runtime.h`
+- `module/math/math_core.h`:
+  - Split into:
+    - `math_traits.h`
+    - `math_constants.h`
+    - `math_scalar_ops.h`
+    - `math_vector_ops.h`
+
+### C) `module/io/*`
+- `module/io/image_load.h`:
+  - Split by format families:
+    - `image_load_common.h`
+    - `image_load_bmp_pnm.h`
+    - `image_load_png_jpeg.h`
+    - `image_load_tiff_exr.h`
+    - `image_load_misc.h`
+- `module/io/image_save.h`:
+  - Mirror load split:
+    - `image_save_common.h`
+    - `image_save_bmp_pnm.h`
+    - `image_save_png_jpeg.h`
+    - `image_save_tiff_exr.h`
+    - `image_save_misc.h`
+- `module/io/io_helpers.h`:
+  - Currently below threshold (`2680`), keep as-is for now.
+
+### D) `module/display/*`
+- `module/display/display_core.h`:
+  - Split backend and shared logic:
+    - `display_common.h`
+    - `display_events.h`
+    - `display_render.h`
+    - `display_backend_x11.h`
+    - `display_backend_win32.h`
+    - `display_backend_sdl.h`
+
+### E) `module/containers/*`
+- `module/containers/list.h`:
+  - Split into:
+    - `list_core.h`
+    - `list_iterators.h`
+    - `list_algorithms.h`
+    - `list_io.h`
+
+### F) `module/core/*`
+- No split required now (current files are below `3000` lines).
+
+## Execution phases
+
+### Phase 0: Baseline and guardrails
+1. Record current compile baseline in `module/VERIFY.md` using a representative matrix.
+2. Add per-phase parity checks (at minimum compile parity).
+3. Add a line-count check script to flag files over threshold.
+
+### Phase 1: Image module split
+1. Refactor `module/image/*` using include-forwarding wrappers.
+2. Keep existing top-level filenames as compatibility entry points.
+3. Verify after each micro-step with `examples/tutorial.cpp` and at least one image I/O example.
+
+### Phase 2: Math split
+1. Split `module/math/*` (`math_parser.h`, `math_core.h`).
+2. Preserve macro ordering and template visibility.
+3. Re-run verification matrix and symbol parity checks.
+
+### Phase 3: IO, display, containers split
+1. Split `image_load.h`, `math_core.h`, `display_core.h`, `list.h`.
+2. Ensure backend guards remain unchanged.
+3. Re-run strict-warning compile checks.
+
+### Phase 4: Threshold cleanup and consolidation
+1. Re-check all `module/**` line counts.
+2. Ensure every `module/**` file is `<=3000` lines.
+3. Consolidate tiny shards if fragmentation is excessive.
+
+## Verification requirements
+- Compile parity:
+  - `#include "CImg.h"`
+  - `#include "module/cimg_all.h"`
+- Matrix:
+  - `cimg_display=0/1`
+  - `cimg_use_openmp=0/1` (with `-fopenmp` when enabled)
+  - strict warnings (`-Wall -Wextra -Werror` where feasible)
+- Symbol sanity:
+  - Compare `nm -C` output of equivalent translation units for major checkpoints.
+
+## Definition of done
+- No `module/**` file exceeds `3000` lines.
+- All Phase 1-3 verification checks pass.
