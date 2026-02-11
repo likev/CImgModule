@@ -98,7 +98,7 @@ Deliverable: documentation section in `README.md`.
 ### Phase status checklist
 - [x] Phase 0 — Inventory and dependency mapping
 - [x] Phase 1 — Non-functional extraction
-- [ ] Phase 2 — Stabilize include graph
+- [x] Phase 2 — Stabilize include graph
 - [ ] Phase 3 — Verification matrix
 - [ ] Phase 4 — Optional selective include support
 
@@ -160,6 +160,7 @@ Deliverable: documentation section in `README.md`.
 - _2026-02-11_: Phase 1 extraction step 43: moved remaining `namespace cimg` function definitions from `CImg.h` into `module/core/cimg_namespace_base.h` (`unused`, `exception_mode`, `openmp_mode`, platform-safe formatted I/O wrappers) and `module/core/cimg_namespace_runtime.h` (`tictoc`, `strbuffersize`, `dialog`, `eval`).
 - _2026-02-11_: Phase 1 extraction step 44: moved the remaining `namespace cimg` declaration/macro block from `CImg.h` into `module/core/cimg_namespace_decl.h` (forward declarations + OpenMP helper macros), leaving `CImg.h` as an include-based umbrella.
 - _2026-02-11_: Phase 1 close-out: completed extraction/doc updates and expanded `module/VERIFY.md` compile matrix (display/OpenMP/strict-warning checks passed; JPEG/TIFF smoke checks blocked only by missing environment development headers).
+- _2026-02-11_: Phase 2 step 1: stabilized include graph by making `module/cimg_all.h` the deterministic module umbrella delegating to `CImg.h`, documenting scope-dependent module-fragment prerequisites, and validating umbrella compile parity.
 
 
 ## Risk register and mitigations

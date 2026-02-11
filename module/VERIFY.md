@@ -32,6 +32,7 @@ Tracking compile/runtime parity checks during and after modular extraction.
 | Strict warnings compile | `g++ -std=c++11 -Wall -Wextra -Werror -fmax-errors=1 -Dcimg_display=0 -I. -c examples/tutorial.cpp -o /tmp/p1_tutorial_werror.o` | ✅ Pass | Confirms strict warning mode for representative umbrella compile. |
 | Additional example compile (`image2ascii`) | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/image2ascii.cpp -o /tmp/p1_image2ascii.o` | ✅ Pass | Additional non-tutorial compile sanity check. |
 | Additional example compile (`use_draw_gradient`) | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/use_draw_gradient.cpp -o /tmp/p1_use_draw_gradient.o` | ✅ Pass | Additional module-coverage sanity check. |
+| Module umbrella compile (`module/cimg_all.h`) | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c /tmp/test_cimg_all.cpp -o /tmp/test_cimg_all.o` | ✅ Pass | Confirms deterministic module umbrella include is valid after Phase 2 stabilization. |
 | JPEG I/O example compile (`use_jpeg_buffer`) | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -Dcimg_use_jpeg=1 -I. -c examples/use_jpeg_buffer.cpp -o /tmp/p1_use_jpeg_buffer.o` | ⚠️ Blocked (env) | Fails due to missing `jpeglib.h` in current environment, not due to header split. |
 | TIFF I/O example compile (`use_tiff_stream`) | `g++ -std=c++11 -fmax-errors=1 -Dcimg_display=0 -I. -c examples/use_tiff_stream.cpp -o /tmp/p1_use_tiff_stream.o` | ⚠️ Blocked (env) | Fails due to missing `tiffio.h` in current environment, not due to header split. |
 

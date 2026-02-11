@@ -61,6 +61,12 @@ This document maps major `CImg.h` regions into the target `/module` layout and c
 9. `io/io_common.h` before `io_formats_*.h`.
 10. `compat/legacy_macros.h` last so aliases see all final declarations.
 
+## Phase 2 include graph status
+
+- `module/cimg_all.h` is now the deterministic umbrella entry point for module consumers and delegates to `CImg.h`.
+- Rationale: several extracted module headers are intentionally scope-dependent fragments (they are included inside `namespace cimg_library`, `namespace cimg`, or `struct CImg<T>`), so they are not yet valid standalone public entry points.
+- Current graph sanity: no accidental cycles were introduced among extracted module fragments (`module/image/image_class.h` -> `module/image/image_class_body.h` -> internal image/io/math fragments is acyclic).
+
 ## Extraction rules used for Phase 1
 
 - Move code in very small contiguous blocks with zero intentional behavior changes.
