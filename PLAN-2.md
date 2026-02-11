@@ -180,8 +180,8 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 - [x] Phase 4 — Threshold cleanup and consolidation
 - [x] Phase 5 — Verify and Fix Function Integrity
 - [x] Phase 6 — Doxygen Comment Integrity
-- [ ] Phase 7 — Test Extraction
-- [ ] Phase 8 — Test Execution
+- [x] Phase 7 — Test Extraction
+- [x] Phase 8 — Test Execution
 
 ### Change log
 - _YYYY-MM-DD_: Initialize PLAN-2 and define size-reduction strategy.
