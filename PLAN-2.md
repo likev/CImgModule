@@ -142,11 +142,11 @@ Reduce maintenance risk by splitting oversized files in `module/*` into smaller,
 2. Verify that function documentation remains immediately preceding the function it documents.
 3. Fix any split comments by moving the entire comment block to the file containing the documented symbol.
 
-### Phase 7: Test Extraction
+### Phase 7: Test Extraction and Fixes
 1. Create a `tests/` directory.
 2. Scan all `module/**` headers for Doxygen comments containing `\code ... \endcode` blocks.
 3. Extract these blocks into standalone C++ test files (e.g., `tests/test_image_draw.cpp`).
-4. Ensure extracted tests include necessary headers (e.g., `CImg.h`).
+4. Try to read and fix grammar/syntax errors in the extracted snippets (e.g., replace `...`, declare missing variables) to make them compilable.
 
 ### Phase 8: Test Execution
 1. Compile all extracted test files from Phase 7.
