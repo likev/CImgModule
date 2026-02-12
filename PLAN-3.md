@@ -12,6 +12,12 @@ For each class:
     - The implementation files are included *after* the class definition is complete.
     - This ensures all template definitions are visible to the compiler when the class header is included.
 
+## Constraints
+- **Test Preservation:** Do not modify any files within the `tests/` directory. These are the source of truth for verification and must remain unaltered throughout the refactoring process.
+
+## Prerequisites
+- **Dependencies:** The automated tests require `libjpeg`. Ensure `libjpeg-dev` is installed on the system. If not found, it must be installed using `sudo apt-get install -y libjpeg-dev`.
+
 ## Targeted Classes
 
 ### 1. `CImg<T>`
@@ -35,6 +41,10 @@ For each class:
     - Move implementations to `module/display/display_impl.h`.
 
 ## Phased Execution Plan
+
+### Phase 0: Environment Setup
+1.  Verify if `libjpeg-dev` is installed.
+2.  If not installed, run `sudo apt-get update && sudo apt-get install -y libjpeg-dev` to ensure tests can handle JPEG images.
 
 ### Phase 1: `CImg<T>` Declaration Extraction
 1.  Identify all methods currently included in `CImg<T>`.
@@ -74,6 +84,7 @@ For each class:
 - Update this section as work advances so status is visible in a single place.
 
 ### Phase status checklist
+- [x] Phase 0 — Environment Setup
 - [ ] Phase 1 — `CImg<T>` Declaration Extraction
 - [ ] Phase 2 — `CImg<T>` Implementation Transformation
 - [ ] Phase 3 — `CImgList<T>` Refactor
@@ -82,3 +93,5 @@ For each class:
 
 ### Change log
 - _2026-02-11_: Initialize PLAN-3 and define declaration/definition separation strategy.
+- _2026-02-12_: Add constraint to preserve `tests/` directory content.
+- _2026-02-12_: Add prerequisite and Phase 0 for `libjpeg-dev` installation.
