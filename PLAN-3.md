@@ -14,6 +14,7 @@ For each class:
 
 ## Constraints
 - **Test Preservation:** Do not modify any files within the `tests/` directory. These are the source of truth for verification and must remain unaltered throughout the refactoring process.
+- **Test Working Directory:** Tests must run from `tests/` so image assets resolve.
 
 ## Prerequisites
 - **Dependencies:** The automated tests require `libjpeg`. Ensure `libjpeg-dev` is installed on the system. If not found, it must be installed using `sudo apt-get install -y libjpeg-dev`.
@@ -74,6 +75,57 @@ For each class:
 2.  Ensure no regressions in example programs.
 3.  Final run of all automated tests in `tests/` to confirm total system integrity.
 
+## Source-Informed Implementation Tips
+
+### 1) Keep Fragment Boundaries Stable During Transition
+- `module/image/image_class.h` currently injects `image_class_decl.h` and `image_class_body.h` inside `struct CImg`.
+- `module/containers/list_base.h` opens `struct CImgList`, and `module/containers/list_io.h` closes it.
+- `module/display/display_base.h` opens `struct CImgDisplay`, and `module/display/display_sdl.h` closes it.
+- First transition step should be to establish a single declaration file per class that fully opens/closes the class, then include implementation headers after the class definition.
+
+### 2) Preserve Plugin Injection Points
+- Keep `cimg_plugin*`, `cimglist_plugin*`, and `cimgdisplay_plugin*` includes in class declaration scope.
+- Do not move plugin includes to implementation files; plugin code expects class scope.
+
+### 3) Signature Migration Rules (Critical)
+- Keep default arguments only in declaration headers; remove them from out-of-class definitions.
+- For member-function templates, use double template headers:
+  - `template<typename T> template<typename t> ...`
+- For methods that use class typedefs in signatures (`Tfloat`, `charT`, etc.), prefer trailing-return style in impl files to avoid dependent-type qualification churn:
+  - `auto CImg<T>::linear_atXYZ(...) const -> Tfloat`
+- For `CImgDisplay` (non-template), mark all out-of-class definitions in headers as `inline` to avoid ODR/multiple-definition link errors.
+
+### 4) Handle Macro-Generated Methods as a Dedicated Track
+- `module/image/image_pointwise.h` uses `_cimg_create_pointwise_functions(...)` to emit many in-class bodies.
+- Add separate declaration and implementation macro variants so generated methods can be moved out-of-class without manual per-method rewriting.
+
+### 5) Treat `_cimg_math_parser` as Its Own Migration Unit
+- Parser code is currently injected via `module/math/math_parser*.h` in class scope.
+- Move in two controlled steps:
+  1. Forward-declare `struct _cimg_math_parser;` in the class declaration section.
+  2. Define `template<typename T> struct CImg<T>::_cimg_math_parser { ... };` in implementation includes.
+- Keep parser includes contiguous; parser macros (`_cimg_mp_*`) are tightly coupled.
+
+### 6) Convert in Risk-Ordered Buckets
+- `CImg<T>` recommended order:
+  1. `image_ops_basic.h`
+  2. `image_checks.h`, `image_object3d_ops.h`
+  3. `image_pixels.h`, `image_iterators.h`, `image_value_ops.h`
+  4. `image_accessors.h` (typedef-heavy signatures)
+  5. Body leaves: `image_body_arithmetic.h`, `image_body_analysis.h`, `image_body_pointwise.h`, `image_body_colors.h`, `image_body_geometry_*.h`, `image_body_filters_*.h`, `image_body_object3d.h`, `image_body_draw_*.h`, `image_body_io.h`
+- `CImgList<T>` recommended order:
+  1. Declaration extraction from `list_base.h`
+  2. `list_ops.h`
+  3. `list_io.h`
+- `CImgDisplay` recommended order:
+  1. Common API declarations from `display_base.h`
+  2. Backend impl conversion under existing guards: `display_x11.h`, `display_win32.h`, `display_sdl.h`
+
+### 7) Verification Cadence to Control Blast Radius
+- After each converted header, run targeted tests matching that header name first (e.g., `test_image_ops_basic_h_*.cpp`).
+- After each phase, run the full test matrix from `tests/` (working directory requirement already captured in Constraints).
+- For display changes, add compile-smoke checks with both `-Dcimg_display=0` and `-Dcimg_display=1` even if runtime display tests are environment-limited.
+
 ## Definition of Done
 - `CImg<T>`, `CImgList<T>`, and `CImgDisplay` have clean, declaration-only class definitions.
 - All member function implementations are moved outside the class bodies.
@@ -95,3 +147,4 @@ For each class:
 - _2026-02-11_: Initialize PLAN-3 and define declaration/definition separation strategy.
 - _2026-02-12_: Add constraint to preserve `tests/` directory content.
 - _2026-02-12_: Add prerequisite and Phase 0 for `libjpeg-dev` installation.
+- _2026-02-22_: Add source-informed migration tips from direct audit of `module/image`, `module/containers`, and `module/display`.
