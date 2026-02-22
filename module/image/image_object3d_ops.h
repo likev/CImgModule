@@ -16,12 +16,13 @@
          each 3D object component is checked.
        - Size of the string \c error_message should be at least 128-bytes long, to be able to contain the error message.
     **/
-    template<typename tp, typename tc, typename to>
-    bool is_object3d(const CImgList<tp>& primitives,
-                     const CImgList<tc>& colors,
-                     const to& opacities,
-                     const bool full_check=true,
-                     char *const error_message=0) const {
+  template<typename T>
+  template<typename tp, typename tc, typename to>
+  bool CImg<T>::is_object3d(const CImgList<tp>& primitives,
+                            const CImgList<tc>& colors,
+                            const to& opacities,
+                            const bool full_check,
+                            char *const error_message) const {
       if (error_message) *error_message = 0;
 
       // Check consistency for the particular case of an empty 3D object.
@@ -168,7 +169,8 @@
          each 3D object component is checked.
        - Size of the string \c error_message should be at least 256-bytes long, to be able to contain the error message.
     **/
-    bool is_CImg3d(const bool full_check=true, char *const error_message=0) const {
+  template<typename T>
+  bool CImg<T>::is_CImg3d(const bool full_check, char *const error_message) const {
       if (error_message) *error_message = 0;
 
       // Check instance dimension and header.
@@ -399,7 +401,8 @@
       return true;
     }
 
-    static bool _is_CImg3d(const T val, const char c) {
+  template<typename T>
+  bool CImg<T>::_is_CImg3d(const T val, const char c) {
       return val>=(T)c && val<(T)(c + 1);
     }
 

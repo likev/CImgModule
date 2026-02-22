@@ -190,9 +190,9 @@
        - Equivalent to data().
        - It has been mainly defined for compatibility with STL naming conventions.
      **/
-    #include "module/image/image_iterators.h"
+    #include "module/image/image_iterators_decl.h"
     #include "module/image/image_accessors.h"
-    #include "module/image/image_value_ops.h"
+    #include "module/image/image_value_ops_decl.h"
 
 
 #endif

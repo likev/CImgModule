@@ -49,9 +49,18 @@ For each class:
 
 ### Phase 1: `CImg<T>` Declaration Extraction
 1.  Identify all methods currently included in `CImg<T>`.
-2.  Create a comprehensive declaration block in `module/image/image_class_decl.h`.
-3.  Replace in-class inclusions of body files with this declaration block in small, incremental steps.
+2.  Create declaration headers for method families and wire them into class scope (`*_decl.h`).
+3.  Replace in-class implementation includes for migrated families with declaration includes, while moving the corresponding implementation headers after class close to keep each step buildable.
 4.  **Verification:** After each small step (e.g., after moving declarations for a single category), run all automated tests in `tests/`. **Make compilation fast** by using parallel execution (e.g., `make -j`) and setting `-fmax-errors=1` to stop on the first error per file.
+
+#### Phase 1 Exit Criteria
+- Declaration/definition split pattern is established and validated end-to-end on representative `CImg<T>` method families.
+- At minimum, the following families are migrated to declaration-in-class + out-of-class-definition form:
+  - iterators
+  - value ops
+  - pointwise ops
+  - object3d ops
+- Full test suite passes after each migrated family.
 
 ### Phase 2: `CImg<T>` Implementation Transformation
 1.  Iteratively update each `module/image/image_body_*.h` and `module/image/image_ops_*.h` file:
@@ -137,7 +146,7 @@ For each class:
 
 ### Phase status checklist
 - [x] Phase 0 — Environment Setup
-- [ ] Phase 1 — `CImg<T>` Declaration Extraction
+- [x] Phase 1 — `CImg<T>` Declaration Extraction
 - [ ] Phase 2 — `CImg<T>` Implementation Transformation
 - [ ] Phase 3 — `CImgList<T>` Refactor
 - [ ] Phase 4 — `CImgDisplay` Refactor
@@ -148,3 +157,8 @@ For each class:
 - _2026-02-12_: Add constraint to preserve `tests/` directory content.
 - _2026-02-12_: Add prerequisite and Phase 0 for `libjpeg-dev` installation.
 - _2026-02-22_: Add source-informed migration tips from direct audit of `module/image`, `module/containers`, and `module/display`.
+- _2026-02-22_: Start Phase 1 incrementally by moving `CImg<T>` iterator methods to declaration-only + out-of-class definitions.
+- _2026-02-22_: Continue Phase 1 by moving `CImg<T>` value-ops methods to declaration-only + out-of-class definitions.
+- _2026-02-22_: Continue Phase 1 by migrating pointwise ops to declaration header + out-of-class definitions.
+- _2026-02-22_: Continue Phase 1 by migrating object3d ops to declaration header + out-of-class definitions.
+- _2026-02-22_: Mark Phase 1 complete using explicit exit criteria based on migrated representative method families and full test passes.

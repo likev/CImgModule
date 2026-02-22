@@ -1,12 +1,14 @@
 #ifndef CIMG_MODULE_IMAGE_POINTWISE_H
 #define CIMG_MODULE_IMAGE_POINTWISE_H
 #define _cimg_create_pointwise_functions(name,func,min_size) \
-    CImg<T>& name() { \
+  template<typename T> \
+    CImg<T>& CImg<T>::name() { \
       if (is_empty()) return *this; \
       cimg_openmp_for(*this,func((typename cimg::superset<T,float>::type)*ptr),min_size,T); \
       return *this; \
     } \
-    CImg<Tfloat> get_##name() const { \
+  template<typename T> \
+    auto CImg<T>::get_##name() const -> CImg<Tfloat> { \
       return CImg<Tfloat>(*this,false).name(); \
     }
 
@@ -231,8 +233,9 @@
        (img_x,img_y,img_atan2).display();
        \endcode
     **/
+    template<typename T>
     template<typename t>
-    CImg<T>& atan2(const CImg<t>& img) {
+    CImg<T>& CImg<T>::atan2(const CImg<t>& img) {
       const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return atan2(+img);
@@ -246,8 +249,9 @@
     }
 
     //! Compute the arctangent2 of each pixel value \newinstance.
+    template<typename T>
     template<typename t>
-    CImg<Tfloat> get_atan2(const CImg<t>& img) const {
+    auto CImg<T>::get_atan2(const CImg<t>& img) const -> CImg<Tfloat> {
       return CImg<Tfloat>(*this,false).atan2(img);
     }
 
@@ -280,5 +284,7 @@
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(atanh,cimg::atanh,8192)
+
+#undef _cimg_create_pointwise_functions
 
 #endif
