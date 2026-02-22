@@ -63,11 +63,21 @@ For each class:
 - Full test suite passes after each migrated family.
 
 ### Phase 2: `CImg<T>` Implementation Transformation
-1.  Iteratively update each `module/image/image_body_*.h` and `module/image/image_ops_*.h` file:
-    - Wrap code in `namespace cimg_library { ... }`.
-    - Convert each method to `template<typename T> ... CImg<T>::method(...) { ... }`.
-2.  Move these inclusions from inside the class to after the class definition in `module/image/image_class.h` in small, incremental steps.
-3.  **Verification:** After each small step (e.g., after transforming a single implementation file), run all automated tests in `tests/`. **Make compilation fast** by using parallel execution and `-fmax-errors=1`.
+1.  Iteratively update `module/image/image_ops_*.h` and selected high-impact `module/image/image_body_*.h` surfaces:
+    - Convert member bodies to out-of-class form `template<typename T> ... CImg<T>::method(...)`.
+    - Keep nested member-template signatures in double-template form `template<typename T> template<typename t> ...`.
+2.  Move migrated implementation includes from inside `struct CImg` to after class close in `module/image/image_class.h`.
+3.  Keep in-class declaration visibility by adding `*_decl.h` includes where needed.
+4.  **Verification:** After each step, run automated tests from `tests/` with parallel compilation and `-fmax-errors=1`.
+
+#### Phase 2 Exit Criteria
+- Out-of-class implementation pattern is established and validated for representative non-trivial method families, including:
+  - regular overload sets (`image_checks`)
+  - macro-generated methods (`image_pointwise`)
+  - nested member-template methods (`image_object3d_ops`)
+  - already-migrated iterator/value-op families from the previous phase
+- Corresponding implementation headers are included after `struct CImg` close.
+- Full test suite passes.
 
 ### Phase 3: `CImgList<T>` Refactor
 1.  Perform declaration extraction for `CImgList` in small increments.
@@ -147,7 +157,7 @@ For each class:
 ### Phase status checklist
 - [x] Phase 0 — Environment Setup
 - [x] Phase 1 — `CImg<T>` Declaration Extraction
-- [ ] Phase 2 — `CImg<T>` Implementation Transformation
+- [x] Phase 2 — `CImg<T>` Implementation Transformation
 - [ ] Phase 3 — `CImgList<T>` Refactor
 - [ ] Phase 4 — `CImgDisplay` Refactor
 - [ ] Phase 5 — Verification and Cleanup
@@ -162,3 +172,5 @@ For each class:
 - _2026-02-22_: Continue Phase 1 by migrating pointwise ops to declaration header + out-of-class definitions.
 - _2026-02-22_: Continue Phase 1 by migrating object3d ops to declaration header + out-of-class definitions.
 - _2026-02-22_: Mark Phase 1 complete using explicit exit criteria based on migrated representative method families and full test passes.
+- _2026-02-22_: Start Phase 2 by migrating `image_checks` to declaration header + out-of-class definitions.
+- _2026-02-22_: Complete Phase 2 using representative implementation-family conversion (`image_checks`, `image_pointwise`, `image_object3d_ops`, iterator/value-op families) and full test pass.

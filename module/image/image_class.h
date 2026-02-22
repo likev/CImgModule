@@ -117,6 +117,7 @@
   }; // struct CImg { ...
 
   #include "module/image/image_iterators.h"
+  #include "module/image/image_checks.h"
   #include "module/image/image_object3d_ops.h"
   #include "module/image/image_pointwise.h"
   #include "module/image/image_value_ops.h"
