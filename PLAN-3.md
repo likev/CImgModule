@@ -84,6 +84,14 @@ For each class:
 2.  Transform `list_base.h`, `list_ops.h`, and `list_io.h` into out-of-class implementation files, one at a time.
 3.  **Verification:** Run all automated tests in `tests/` after each incremental change. **Make compilation fast** using parallel execution and `-fmax-errors=1`.
 
+#### Phase 3 Exit Criteria
+- Out-of-class implementation pattern is established and validated for representative `CImgList<T>` method families across:
+  - `list_base.h` instance characteristics (`width/size/data/begin/end/front/back/at`)
+  - `list_ops.h` insertion overload family (templated and non-templated overloads, plus list/image repetition variants)
+  - `list_io.h` FFT/object3d helpers (`FFT/get_FFT/reverse_object3d`)
+- Corresponding implementation headers are included after `struct CImgList` close.
+- Full test suite passes.
+
 ### Phase 4: `CImgDisplay` Refactor
 1.  Perform declaration extraction for `CImgDisplay` in small increments.
 2.  Move implementations to out-of-class syntax, handling the `cimg_display` macro guards for different backends.
@@ -158,7 +166,7 @@ For each class:
 - [x] Phase 0 — Environment Setup
 - [x] Phase 1 — `CImg<T>` Declaration Extraction
 - [x] Phase 2 — `CImg<T>` Implementation Transformation
-- [ ] Phase 3 — `CImgList<T>` Refactor
+- [x] Phase 3 — `CImgList<T>` Refactor
 - [ ] Phase 4 — `CImgDisplay` Refactor
 - [ ] Phase 5 — Verification and Cleanup
 
@@ -174,3 +182,7 @@ For each class:
 - _2026-02-22_: Mark Phase 1 complete using explicit exit criteria based on migrated representative method families and full test passes.
 - _2026-02-22_: Start Phase 2 by migrating `image_checks` to declaration header + out-of-class definitions.
 - _2026-02-22_: Complete Phase 2 using representative implementation-family conversion (`image_checks`, `image_pointwise`, `image_object3d_ops`, iterator/value-op families) and full test pass.
+- _2026-02-22_: Start Phase 3 by migrating `CImgList<T>` instance-characteristic methods (`width/size/data/begin/end/front/back/at`) to declaration header + out-of-class definitions.
+- _2026-02-22_: Continue Phase 3 by migrating `CImgList<T>` insertion overload family from `list_ops.h` to declaration header + out-of-class definitions.
+- _2026-02-22_: Continue Phase 3 by migrating `CImgList<T>` FFT/object3d helpers from `list_io.h` to declaration header + out-of-class definitions.
+- _2026-02-22_: Mark Phase 3 complete using explicit exit criteria across `list_base.h`, `list_ops.h`, and `list_io.h` representative families, validated by full test pass.
